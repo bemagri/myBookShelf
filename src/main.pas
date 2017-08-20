@@ -18,13 +18,14 @@ type
     ImageToolBar: Timage;
     ButtonAdd: Timage;
     Opendialog1: Topendialog;
-    PanelBackground: Tpanel;
+    PanelBackground: Tscrollbox;
     procedure Buttonaddclick(Sender: Tobject);
-    procedure Formclick(Sender: Tobject);
     procedure Formclose(Sender: Tobject; var Closeaction: Tcloseaction);
     procedure Formcreate(Sender: Tobject);
     procedure Formpaint(Sender: Tobject);
     procedure Panelbackgroundpaint(Sender: Tobject);
+    //procedure DrawBooks();
+    procedure Panelbackgroundresize(Sender: Tobject);
   private
     { private declarations }
   public
@@ -37,6 +38,7 @@ var
   X,Y, Xdelta, Ydelta:integer;
   dataPath:String;
   background:TPicture;
+  bookWidth,bookHeight:Integer;
 
 
 implementation
@@ -51,19 +53,37 @@ begin
 End;
 
 procedure Tform1.Panelbackgroundpaint(Sender: Tobject);
-var rect:TRect;
 begin
- rect.Left:=0;
- rect.top:=0;
- rect.Width:=PanelBackground.Width;
- rect.Height:=PanelBackground.Height;
- PanelBackground.Canvas.StretchDraw(rect, background.Graphic);
+ PanelBackground.Canvas.StretchDraw(PanelBackground.Canvas.ClipRect, background.Graphic);
 End;
 
-procedure Tform1.Formclick(Sender: Tobject);
+//procedure Tform1.Drawbooks();
+//var i:integer;
+//    tempBook:TBook;
+//begin
+//   for i:=0 to BookList.Count-1 do
+// begin
+//  tempBook:=BookList.Books[i];
+//  if X+Xdelta > PanelBackground.Width-150 then
+//  begin
+//    X:=0;
+//    Y:=Y+Ydelta+200;
+//  end;
+//  tempBook.Cover.Left:=X+Xdelta;
+//  tempBook.Cover.Top:=Y+Ydelta;
+//  tempBook.Cover.Width:=150;
+//  tempBook.Cover.Height:=200;
+//  if tempBook.Cover.Parent=nil then
+//     tempBook.Cover.Parent:=PanelBackground;
+//  X:=X+Xdelta+150;
+// end;
+//end;
+
+procedure Tform1.Panelbackgroundresize(Sender: Tobject);
 begin
-  //OpenDocument(myBook.FilePath);
+ // DrawBooks();
 End;
+
 
 procedure Tform1.Formclose(Sender: Tobject; var Closeaction: Tcloseaction);
 begin
@@ -115,7 +135,8 @@ if not DirectoryExists(GetEnvironmentVariable('HOME') + '/.mybookshelf/') then
  if FileExists(dataPath) then
     BookList.LoadData(dataPath, PanelBackground);
 
- for i:=0 to BookList.Count-1 do
+
+   for i:=0 to BookList.Count-1 do
  begin
   tempBook:=BookList.Books[i];
   if X+Xdelta > PanelBackground.Width-150 then
@@ -127,7 +148,8 @@ if not DirectoryExists(GetEnvironmentVariable('HOME') + '/.mybookshelf/') then
   tempBook.Cover.Top:=Y+Ydelta;
   tempBook.Cover.Width:=150;
   tempBook.Cover.Height:=200;
-  tempBook.Cover.Parent:=PanelBackground;
+  if tempBook.Cover.Parent=nil then
+     tempBook.Cover.Parent:=PanelBackground;
   X:=X+Xdelta+150;
  end;
 
