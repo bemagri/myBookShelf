@@ -14,6 +14,7 @@ type
   { Tform1 }
 
   Tform1 = class(Tform)
+    Image1: Timage;
     ImageToolBar: Timage;
     ButtonAdd: Timage;
     Opendialog1: Topendialog;
@@ -23,10 +24,10 @@ type
     procedure Formclose(Sender: Tobject; var Closeaction: Tcloseaction);
     procedure Formcreate(Sender: Tobject);
     procedure Formpaint(Sender: Tobject);
+    procedure Panelbackgroundpaint(Sender: Tobject);
   private
     { private declarations }
   public
-    procedure Bookpanelpaint(Sender: Tobject);
     { public declarations }
   end;
 
@@ -35,6 +36,7 @@ var
   BookList:TBookCollection;
   X,Y, Xdelta, Ydelta:integer;
   dataPath:String;
+  background:TPicture;
 
 
 implementation
@@ -48,11 +50,14 @@ begin
  //myBook.DrawCover(PanelBackground.Canvas);
 End;
 
-procedure Tform1.Bookpanelpaint(Sender: Tobject);
-var book:TBook;
+procedure Tform1.Panelbackgroundpaint(Sender: Tobject);
+var rect:TRect;
 begin
-
-
+ rect.Left:=0;
+ rect.top:=0;
+ rect.Width:=PanelBackground.Width;
+ rect.Height:=PanelBackground.Height;
+ PanelBackground.Canvas.StretchDraw(rect, background.Graphic);
 End;
 
 procedure Tform1.Formclick(Sender: Tobject);
@@ -98,6 +103,9 @@ begin
  X:=0;
  Y:=0;
 
+ background:=TPicture.Create;
+ background.LoadFromLazarusResource('back');
+
  DataPath:= GetEnvironmentVariable('HOME') + '/.mybookshelf/data.dat'; //fix the data store dir
 
 if not DirectoryExists(GetEnvironmentVariable('HOME') + '/.mybookshelf/') then
@@ -110,6 +118,11 @@ if not DirectoryExists(GetEnvironmentVariable('HOME') + '/.mybookshelf/') then
  for i:=0 to BookList.Count-1 do
  begin
   tempBook:=BookList.Books[i];
+  if X+Xdelta > PanelBackground.Width-150 then
+  begin
+    X:=0;
+    Y:=Y+Ydelta+200;
+  end;
   tempBook.Cover.Left:=X+Xdelta;
   tempBook.Cover.Top:=Y+Ydelta;
   tempBook.Cover.Width:=150;
