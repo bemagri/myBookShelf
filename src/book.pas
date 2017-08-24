@@ -5,7 +5,7 @@ unit Book;
 interface
 
 uses
-  Classes, Sysutils, Graphics, ExtCtrls, LCLIntf;
+  Classes, Sysutils, Graphics, ExtCtrls, LCLIntf, Controls;
 
 type
 
@@ -14,6 +14,8 @@ type
   TBook = class(TObject)
     private
       mTitle : String;
+      mAuthors:String;
+      mISBN:String;
       mFilePath : String;
       mCover : TImage;
       mImagePath : String;
@@ -24,10 +26,15 @@ type
       procedure Setimage(Avalue: String);
     public
       constructor Create(parent:TComponent);
+      procedure Bookmousedown(Sender: Tobject; Button: Tmousebutton;
+        Shift: Tshiftstate; X, Y: Integer);
       property Cover : TImage read mCover;
-      property ImagePath : String write SetImage;
+      property ImagePath : String read mImagePath write SetImage;
       property FilePath : String read mFilePath write SetFile;
       property isSelected : Boolean read mIsSelected write mIsSelected;
+      property Title : String read mTitle write mTitle;
+      property Authors : String read mAuthors write mAuthors;
+      property ISBN : String read mISBN write mISBN;
       destructor Destroy;
       procedure BookClick(Sender:TObject);
       procedure BookDoubleClick(Sender:TObject);
@@ -35,6 +42,8 @@ type
   end;
 
 implementation
+
+uses UnitBookDialog;
 
 { TBook }
 
@@ -67,8 +76,25 @@ begin
   mCover.OnClick:=@BookClick;
   mCover.OnDblClick:=@BookDoubleClick;
   mCover.OnPaint:=@BookCoverPaint;
+  mCover.OnMouseDown:=@Bookmousedown;
   mIsSelected:=False;
+  mTitle:='null';
+  mAuthors:='null';
+  mISBN:='null';
+  mImagePath:='null';
 end;
+
+procedure Tbook.Bookmousedown(Sender: Tobject; Button: Tmousebutton;
+  Shift: Tshiftstate; X, Y: Integer);
+var  dialog:TBookEditDialog;
+begin
+  if Button = TMouseButton.mbRight then
+     begin
+        dialog:= TBookEditDialog.Create(nil);
+        dialog.LoadBook(Self);
+        dialog.ShowModal;
+     end;
+End;
 
 
 destructor Tbook.Destroy;
@@ -99,6 +125,7 @@ begin
     mCover.Canvas.Rectangle(1,1,mCover.Width,mCover.Height);
     end;
 end;
+
 
 end.
 

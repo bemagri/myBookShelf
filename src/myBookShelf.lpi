@@ -31,7 +31,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="5">
       <Unit0>
         <Filename Value="myBookShelf.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -53,6 +53,14 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="bookCollection"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="unitbookdialog.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="BookEditDialog"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UnitBookDialog"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

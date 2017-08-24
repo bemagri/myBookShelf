@@ -87,7 +87,12 @@ begin
     for i:=0 to mList.Count-1 do
         begin
           temp:= (TBook(mList[i]));
-          writeln(tfOut, temp.FilePath);
+          writeln(tfOut, temp.Title);
+          WriteLn(tfOut, temp.Authors);
+          WriteLn(tfOut, temp.ISBN);
+          writeLn(tfOut, temp.FilePath);
+          writeLn(tfOut, temp.ImagePath);
+          writeLn(tfOut, '**********************');
         end;
 
     CloseFile(tfOut);
@@ -102,7 +107,8 @@ end;
 
 procedure Tbookcollection.Loaddata(Path: String; Parent: Tcomponent);
 var tempBook:TBook;
-    tempPath:String;
+    title,filepath,imagepath:String;
+    authors,isbn:String;
     dataFile:TextFile;
 begin
   AssignFile(dataFile, path);
@@ -111,9 +117,19 @@ begin
     Reset(dataFile);
     while not EOF(dataFile) do
     begin
-      readln(dataFile, tempPath);
+      readln(dataFile, title);
+      readln(datafile, authors);
+      readln(datafile, isbn);
+      readln(datafile, filepath);
+      readln(datafile, imagepath);
+      readln(datafile);
+
       tempBook:=TBook.Create(parent);
-      tempBook.FilePath:=tempPath;
+      tempbook.Title:=title;
+      tempbook.Authors:=authors;
+      tempbook.ISBN:=isbn;
+      tempBook.FilePath:=filepath;
+      tempBook.ImagePath:=imagepath;
       mList.Add(tempBook);
     end;
 

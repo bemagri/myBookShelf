@@ -7,7 +7,7 @@ uses
   Cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, main, book, bookCollection
+  Forms, main, book, bookCollection, UnitBookDialog
   { you can add units after this };
 
 {$R *.res}
@@ -16,6 +16,7 @@ begin
   Requirederivedformresource:=True;
   Application.Initialize;
   Application.Createform(Tform1, Form1);
+  Application.Createform(Tbookeditdialog, Bookeditdialog);
   Application.Run;
 end.
 
