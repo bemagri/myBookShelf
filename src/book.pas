@@ -19,6 +19,7 @@ type
       mImagePath : String;
       mImageHeight : Integer;
       mImageWidth : Integer;
+      mIsSelected: Boolean;
       procedure Setfile(Avalue: String);
       procedure Setimage(Avalue: String);
     public
@@ -26,9 +27,11 @@ type
       property Cover : TImage read mCover;
       property ImagePath : String write SetImage;
       property FilePath : String read mFilePath write SetFile;
+      property isSelected : Boolean read mIsSelected write mIsSelected;
       destructor Destroy;
       procedure BookClick(Sender:TObject);
-
+      procedure BookDoubleClick(Sender:TObject);
+      procedure BookCoverPaint(Sender:TObject);
   end;
 
 implementation
@@ -62,6 +65,9 @@ begin
   mCover.Picture:=pic;
   mCover.Stretch:=true;
   mCover.OnClick:=@BookClick;
+  mCover.OnDblClick:=@BookDoubleClick;
+  mCover.OnPaint:=@BookCoverPaint;
+  mIsSelected:=False;
 end;
 
 
@@ -72,7 +78,26 @@ end;
 
 procedure Tbook.Bookclick(Sender: Tobject);
 begin
+  mIsSelected:= not mIsSelected;
+  mCover.Repaint;
+end;
+
+procedure Tbook.Bookdoubleclick(Sender: Tobject);
+begin
+  mIsSelected:=True;
+  mCover.Repaint;
   OpenDocument(mFilePath);
+end;
+
+procedure Tbook.Bookcoverpaint(Sender: Tobject);
+begin
+  if mIsSelected then
+    begin
+    mCover.Canvas.Brush.Style:=bsClear;
+    mCover.Canvas.Pen.Width:=4;
+    mCover.Canvas.Pen.Color:=clRed;
+    mCover.Canvas.Rectangle(1,1,mCover.Width,mCover.Height);
+    end;
 end;
 
 end.

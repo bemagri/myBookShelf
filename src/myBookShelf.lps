@@ -19,7 +19,7 @@
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
-        <TopLine Value="122"/>
+        <TopLine Value="88"/>
         <CursorPos X="7" Y="27"/>
         <UsageCount Value="38"/>
         <Loaded Value="True"/>
@@ -30,8 +30,7 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Book"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="38"/>
-        <CursorPos X="30" Y="64"/>
+        <CursorPos X="71" Y="30"/>
         <UsageCount Value="38"/>
         <Loaded Value="True"/>
       </Unit2>
@@ -40,7 +39,7 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="bookCollection"/>
         <EditorIndex Value="3"/>
-        <TopLine Value="68"/>
+        <TopLine Value="14"/>
         <CursorPos X="71" Y="109"/>
         <UsageCount Value="35"/>
         <Loaded Value="True"/>
@@ -111,119 +110,127 @@
         <UsageCount Value="10"/>
       </Unit12>
     </Units>
-    <JumpHistory Count="28" HistoryIndex="27">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="bookcollection.pas"/>
-        <Caret Line="48" TopLine="26"/>
-      </Position1>
-      <Position2>
         <Filename Value="main.pas"/>
         <Caret Line="115" TopLine="77"/>
-      </Position2>
-      <Position3>
+      </Position1>
+      <Position2>
         <Filename Value="myBookShelf.lpr"/>
         <Caret Line="19"/>
+      </Position2>
+      <Position3>
+        <Filename Value="bookcollection.pas"/>
+        <Caret Line="102" TopLine="80"/>
       </Position3>
       <Position4>
         <Filename Value="bookcollection.pas"/>
-        <Caret Line="102" TopLine="80"/>
+        <Caret Line="104" TopLine="80"/>
       </Position4>
       <Position5>
         <Filename Value="bookcollection.pas"/>
-        <Caret Line="104" TopLine="80"/>
+        <Caret Line="105" TopLine="80"/>
       </Position5>
       <Position6>
         <Filename Value="bookcollection.pas"/>
-        <Caret Line="105" TopLine="80"/>
+        <Caret Line="106" TopLine="80"/>
       </Position6>
       <Position7>
-        <Filename Value="bookcollection.pas"/>
-        <Caret Line="106" TopLine="80"/>
-      </Position7>
-      <Position8>
         <Filename Value="book.pas"/>
         <Caret Line="46" Column="46"/>
+      </Position7>
+      <Position8>
+        <Filename Value="main.pas"/>
+        <Caret Line="45" Column="23" TopLine="19"/>
       </Position8>
       <Position9>
         <Filename Value="main.pas"/>
-        <Caret Line="45" Column="23" TopLine="19"/>
+        <Caret Line="113" Column="42" TopLine="92"/>
       </Position9>
       <Position10>
         <Filename Value="main.pas"/>
-        <Caret Line="113" Column="42" TopLine="92"/>
+        <Caret Line="114" Column="42" TopLine="93"/>
       </Position10>
       <Position11>
         <Filename Value="main.pas"/>
-        <Caret Line="114" Column="42" TopLine="93"/>
+        <Caret Line="113" Column="42" TopLine="92"/>
       </Position11>
       <Position12>
         <Filename Value="main.pas"/>
-        <Caret Line="113" Column="42" TopLine="92"/>
+        <Caret Line="112" Column="42" TopLine="91"/>
       </Position12>
       <Position13>
         <Filename Value="main.pas"/>
-        <Caret Line="112" Column="42" TopLine="91"/>
+        <Caret Line="122" Column="49" TopLine="92"/>
       </Position13>
       <Position14>
         <Filename Value="main.pas"/>
-        <Caret Line="122" Column="49" TopLine="92"/>
+        <Caret Line="30" Column="9" TopLine="9"/>
       </Position14>
       <Position15>
         <Filename Value="main.pas"/>
-        <Caret Line="30" Column="9" TopLine="9"/>
+        <Caret Line="92" Column="44" TopLine="62"/>
       </Position15>
       <Position16>
         <Filename Value="main.pas"/>
-        <Caret Line="92" Column="44" TopLine="62"/>
+        <Caret Line="60" Column="61" TopLine="39"/>
       </Position16>
       <Position17>
         <Filename Value="main.pas"/>
-        <Caret Line="60" Column="61" TopLine="39"/>
+        <Caret Line="123" Column="9" TopLine="97"/>
       </Position17>
       <Position18>
         <Filename Value="main.pas"/>
-        <Caret Line="123" Column="9" TopLine="97"/>
+        <Caret Line="122" Column="9" TopLine="96"/>
       </Position18>
       <Position19>
         <Filename Value="main.pas"/>
-        <Caret Line="122" Column="9" TopLine="96"/>
+        <Caret Line="27" Column="25" TopLine="7"/>
       </Position19>
       <Position20>
         <Filename Value="main.pas"/>
-        <Caret Line="27" Column="25" TopLine="7"/>
+        <Caret Line="57" Column="45" TopLine="44"/>
       </Position20>
       <Position21>
         <Filename Value="main.pas"/>
-        <Caret Line="57" Column="45" TopLine="44"/>
+        <Caret Line="27" Column="26" TopLine="6"/>
       </Position21>
       <Position22>
         <Filename Value="main.pas"/>
-        <Caret Line="27" Column="26" TopLine="6"/>
+        <Caret Line="60" Column="29" TopLine="25"/>
       </Position22>
       <Position23>
         <Filename Value="main.pas"/>
-        <Caret Line="60" Column="29" TopLine="25"/>
+        <Caret Line="63" TopLine="45"/>
       </Position23>
       <Position24>
         <Filename Value="main.pas"/>
-        <Caret Line="63" TopLine="45"/>
+        <Caret Line="64" TopLine="45"/>
       </Position24>
       <Position25>
         <Filename Value="main.pas"/>
-        <Caret Line="64" TopLine="45"/>
+        <Caret Line="66" TopLine="45"/>
       </Position25>
       <Position26>
         <Filename Value="main.pas"/>
-        <Caret Line="66" TopLine="45"/>
+        <Caret Line="67" Column="32" TopLine="45"/>
       </Position26>
       <Position27>
         <Filename Value="main.pas"/>
-        <Caret Line="67" Column="32" TopLine="45"/>
+        <Caret Line="61" Column="61" TopLine="49"/>
       </Position27>
       <Position28>
-        <Filename Value="main.pas"/>
-        <Caret Line="61" Column="61" TopLine="49"/>
+        <Filename Value="book.pas"/>
+        <Caret Line="31" Column="27" TopLine="12"/>
       </Position28>
+      <Position29>
+        <Filename Value="book.pas"/>
+        <Caret Line="34" Column="31" TopLine="23"/>
+      </Position29>
+      <Position30>
+        <Filename Value="book.pas"/>
+        <Caret Line="95" Column="61" TopLine="55"/>
+      </Position30>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
