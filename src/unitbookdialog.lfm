@@ -1,0 +1,131 @@
+object BookEditDialog: TBookEditDialog
+  Left = 560
+  Height = 368
+  Top = 301
+  Width = 682
+  BorderStyle = bsDialog
+  Caption = 'Edit Book Info'
+  ClientHeight = 368
+  ClientWidth = 682
+  FormStyle = fsStayOnTop
+  OnCreate = FormCreate
+  LCLVersion = '1.6.4.0'
+  object EditTitle: TEdit
+    Left = 277
+    Height = 29
+    Top = 33
+    Width = 376
+    TabOrder = 0
+    Text = 'Title'
+  end
+  object EditAuthors: TEdit
+    Left = 277
+    Height = 29
+    Top = 80
+    Width = 376
+    TabOrder = 1
+    Text = 'Authors'
+  end
+  object EditISBN: TEdit
+    Left = 277
+    Height = 29
+    Top = 120
+    Width = 376
+    TabOrder = 2
+    Text = 'ISBN'
+  end
+  object EditFilePath: TEdit
+    Left = 277
+    Height = 29
+    Top = 160
+    Width = 376
+    OnChange = EditFilePathChange
+    TabOrder = 3
+    Text = 'File Path'
+  end
+  object ButtonSave: TBitBtn
+    Left = 232
+    Height = 30
+    Top = 296
+    Width = 75
+    Caption = '&Save'
+    OnClick = ButtonSaveClick
+    TabOrder = 4
+  end
+  object ButtonCancel: TBitBtn
+    Left = 368
+    Height = 30
+    Top = 296
+    Width = 75
+    Caption = '&Cancel'
+    OnClick = ButtonCancelClick
+    TabOrder = 5
+  end
+  object Panel1: TPanel
+    Left = 24
+    Height = 200
+    Top = 33
+    Width = 150
+    BorderWidth = 2
+    BorderStyle = bsSingle
+    ClientHeight = 200
+    ClientWidth = 150
+    TabOrder = 6
+    object ImageBookCover: TImage
+      Left = 0
+      Height = 200
+      Top = 0
+      Width = 150
+      Stretch = True
+    end
+  end
+  object EditImagePath: TEdit
+    Left = 277
+    Height = 29
+    Top = 204
+    Width = 376
+    OnChange = EditFilePathChange
+    TabOrder = 7
+    Text = 'Image Path'
+  end
+  object Label1: TLabel
+    Left = 192
+    Height = 17
+    Top = 45
+    Width = 30
+    Caption = 'Title'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 192
+    Height = 17
+    Top = 92
+    Width = 66
+    Caption = 'Author(s)'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 192
+    Height = 17
+    Top = 132
+    Width = 33
+    Caption = 'ISBN'
+    ParentColor = False
+  end
+  object Label4: TLabel
+    Left = 192
+    Height = 17
+    Top = 172
+    Width = 59
+    Caption = 'File Path'
+    ParentColor = False
+  end
+  object Label5: TLabel
+    Left = 192
+    Height = 17
+    Top = 216
+    Width = 77
+    Caption = 'Image Path'
+    ParentColor = False
+  end
+end
