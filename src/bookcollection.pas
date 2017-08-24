@@ -22,6 +22,7 @@ TBookCollection = class(TObject)
     procedure LoadData(path:String; parent:TComponent);
     procedure AddBook(book: Tbook);
     property  Books[Index: Integer]:TBook read Get;
+    procedure Remove(book:TBook);
     function Count:Integer;
     constructor Create;
     destructor Destroy;
@@ -41,6 +42,11 @@ procedure Tbookcollection.Addbook(Book: Tbook);
 begin
   mList.Add(book);
 End;
+
+procedure Tbookcollection.Remove(book:Tbook);
+begin
+  mList.Remove(book);
+end;
 
 function Tbookcollection.Count: Integer;
 begin
