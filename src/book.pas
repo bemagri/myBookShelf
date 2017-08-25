@@ -36,7 +36,6 @@ type
       property Authors : String read mAuthors write mAuthors;
       property ISBN : String read mISBN write mISBN;
       destructor Destroy;
-      procedure BookClick(Sender:TObject);
       procedure BookDoubleClick(Sender:TObject);
       procedure BookCoverPaint(Sender:TObject);
   end;
@@ -63,6 +62,7 @@ procedure Tbook.Setfile(Avalue: String);
 begin
   if Mfilepath=Avalue then Exit;
   Mfilepath:=Avalue;
+  SetImage(ChangeFileExt(Avalue, '.png'));
   SetImage(ChangeFileExt(Avalue, '.jpg'));
 end;
 
@@ -73,15 +73,14 @@ begin
   pic:=TPicture.Create;
   mCover.Picture:=pic;
   mCover.Stretch:=true;
-  mCover.OnClick:=@BookClick;
   mCover.OnDblClick:=@BookDoubleClick;
   mCover.OnPaint:=@BookCoverPaint;
   mCover.OnMouseDown:=@Bookmousedown;
   mIsSelected:=False;
-  mTitle:='null';
-  mAuthors:='null';
-  mISBN:='null';
-  mImagePath:='null';
+  mTitle:='';
+  mAuthors:='';
+  mISBN:='';
+  mImagePath:='';
 end;
 
 procedure Tbook.Bookmousedown(Sender: Tobject; Button: Tmousebutton;
@@ -98,6 +97,11 @@ begin
         mIsSelected:=False;
         mCover.Repaint;
      end;
+  if Button = TMouseButton.mbLeft then
+     begin
+        mIsSelected:= not mIsSelected;
+        mCover.Repaint;
+     end;
 End;
 
 
@@ -106,11 +110,6 @@ begin
   FreeAndNil(mCover);
 end;
 
-procedure Tbook.Bookclick(Sender: Tobject);
-begin
-  mIsSelected:= not mIsSelected;
-  mCover.Repaint;
-end;
 
 procedure Tbook.Bookdoubleclick(Sender: Tobject);
 begin

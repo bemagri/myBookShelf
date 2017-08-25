@@ -737,6 +737,7 @@ object Form1: TForm1
   object OpenDialog1: TOpenDialog
     DefaultExt = '.pdf'
     Filter = 'PDF Books|*.pdf|DJVU Books|*.djvu|EPUB Books|*.epub'
+    Options = [ofAllowMultiSelect, ofEnableSizing, ofViewDetail]
     left = 257
     top = 184
   end

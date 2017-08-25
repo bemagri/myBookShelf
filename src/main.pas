@@ -118,16 +118,20 @@ End;
 procedure Tform1.Buttonaddclick(Sender: Tobject);
 var
   book:TBook;
+  i:Integer;
 begin
 
 if OpenDialog1.Execute then
 begin
+  for i:= 0 to Opendialog1.Files.Count-1 do
+  begin
   book:=TBook.Create(PanelBackground);
-  book.FilePath:= OpenDialog1.Filename;
+  book.FilePath:= OpenDialog1.Files.Strings[i];
   BookList.AddBook(book);
   book.Cover.Width:=bookWidth;
   book.Cover.Height:=bookHeight;
   book.Cover.Parent:=PanelBackground;
+  end;
   RearrangeBooksOnScreen();
 end;
 End;
@@ -169,15 +173,27 @@ begin
  background:=TPicture.Create;
  background.LoadFromLazarusResource('back');
 
- //works only for linux and MacOS
- DataPath:= GetEnvironmentVariable('HOME') + '/.mybookshelf/data.dat'; //fix the data store dir
+ {$IFDEF MSWINDOWS}
+ DataPath:= GetEnvironmentVariableUTF8('appdata') + '\mybookshelf'; //fix the data store dir
 
-if not DirectoryExists(GetEnvironmentVariable('HOME') + '/.mybookshelf/') then
-    CreateDir(GetEnvironmentVariable('HOME') + '/.mybookshelf/');
+if not DirectoryExistsUTF8(dataPath) then
+    CreateDirUTF8(dataPath);
+
+dataPath:= dataPath + '\data.dat';
+ {$ENDIF}
+
+ {$IFDEF UNIX}
+ DataPath:= GetEnvironmentVariableUTF8('HOME') + '/.mybookshelf/';
+
+ if not DirectoryExistsUTF8(DataPath) then
+    CreateDirUTF8(dataPath);
+
+ dataPath:= dataPath + 'data.dat';
+ {$ENDIF}
 
  BookList:=TBookCollection.Create;
 
- if FileExists(dataPath) then
+ if FileExistsUTF8(dataPath) then
     BookList.LoadData(dataPath, PanelBackground);
 
 
