@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 567
+  Left = 696
   Height = 573
-  Top = 269
+  Top = 268
   Width = 817
   Caption = 'myBookShelf'
   ClientHeight = 573
@@ -720,7 +720,7 @@ object Form1: TForm1
   end
   object EditSearch: TEdit
     Left = 608
-    Height = 29
+    Height = 21
     Top = 10
     Width = 176
     AutoSelect = False

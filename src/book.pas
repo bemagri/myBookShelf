@@ -90,9 +90,13 @@ var  dialog:TBookEditDialog;
 begin
   if Button = TMouseButton.mbRight then
      begin
+        mIsSelected:=True;
+        mCover.Repaint;
         dialog:= TBookEditDialog.Create(nil);
         dialog.LoadBook(Self);
         dialog.ShowModal;
+        mIsSelected:=False;
+        mCover.Repaint;
      end;
 End;
 

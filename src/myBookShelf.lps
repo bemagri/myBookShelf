@@ -8,7 +8,7 @@
         <Filename Value="myBookShelf.lpr"/>
         <IsPartOfProject Value="True"/>
         <CursorPos Y="21"/>
-        <UsageCount Value="45"/>
+        <UsageCount Value="49"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -18,9 +18,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="4"/>
-        <TopLine Value="82"/>
+        <TopLine Value="100"/>
         <CursorPos X="25" Y="70"/>
-        <UsageCount Value="45"/>
+        <UsageCount Value="49"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -29,9 +29,9 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Book"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="62"/>
-        <CursorPos X="16" Y="83"/>
-        <UsageCount Value="45"/>
+        <TopLine Value="63"/>
+        <CursorPos X="27" Y="98"/>
+        <UsageCount Value="49"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
@@ -41,75 +41,10 @@
         <EditorIndex Value="3"/>
         <TopLine Value="102"/>
         <CursorPos X="22" Y="125"/>
-        <UsageCount Value="42"/>
+        <UsageCount Value="46"/>
         <Loaded Value="True"/>
       </Unit3>
       <Unit4>
-        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/include/canvas.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="354"/>
-        <CursorPos Y="378"/>
-        <UsageCount Value="10"/>
-      </Unit4>
-      <Unit5>
-        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/include/lclintf.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="254"/>
-        <CursorPos Y="275"/>
-        <UsageCount Value="9"/>
-      </Unit5>
-      <Unit6>
-        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/interfaces/gtk2/gtk2winapi.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="4718"/>
-        <CursorPos Y="4740"/>
-        <UsageCount Value="9"/>
-      </Unit6>
-      <Unit7>
-        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/interfaces/gtk2/gtk2widgetset.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="5406"/>
-        <CursorPos Y="5428"/>
-        <UsageCount Value="9"/>
-      </Unit7>
-      <Unit8>
-        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/dynhasharray.pp"/>
-        <UnitName Value="DynHashArray"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="598"/>
-        <CursorPos Y="620"/>
-        <UsageCount Value="9"/>
-      </Unit8>
-      <Unit9>
-        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/include/customform.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="133"/>
-        <CursorPos Y="161"/>
-        <UsageCount Value="10"/>
-      </Unit9>
-      <Unit10>
-        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/include/application.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="2183"/>
-        <CursorPos Y="2203"/>
-        <UsageCount Value="10"/>
-      </Unit10>
-      <Unit11>
-        <Filename Value="main.lfm"/>
-        <EditorIndex Value="1"/>
-        <UsageCount Value="14"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="LFM"/>
-      </Unit11>
-      <Unit12>
-        <Filename Value="/usr/lib/lazarus/1.6.4/components/lazutils/lazmethodlist.pas"/>
-        <UnitName Value="LazMethodList"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="200"/>
-        <CursorPos Y="238"/>
-        <UsageCount Value="10"/>
-      </Unit12>
-      <Unit13>
         <Filename Value="unitbookdialog.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="BookEditDialog"/>
@@ -118,133 +53,198 @@
         <UnitName Value="UnitBookDialog"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="5"/>
-        <TopLine Value="50"/>
-        <CursorPos X="9" Y="76"/>
-        <UsageCount Value="23"/>
+        <TopLine Value="48"/>
+        <CursorPos X="2" Y="67"/>
+        <UsageCount Value="27"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/include/canvas.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="354"/>
+        <CursorPos Y="378"/>
+        <UsageCount Value="10"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/include/lclintf.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="254"/>
+        <CursorPos Y="275"/>
+        <UsageCount Value="9"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/interfaces/gtk2/gtk2winapi.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="4718"/>
+        <CursorPos Y="4740"/>
+        <UsageCount Value="9"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/interfaces/gtk2/gtk2widgetset.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="5406"/>
+        <CursorPos Y="5428"/>
+        <UsageCount Value="9"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/dynhasharray.pp"/>
+        <UnitName Value="DynHashArray"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="598"/>
+        <CursorPos Y="620"/>
+        <UsageCount Value="9"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/include/customform.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="133"/>
+        <CursorPos Y="161"/>
+        <UsageCount Value="10"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="/usr/lib/lazarus/1.6.4/lcl/include/application.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2183"/>
+        <CursorPos Y="2203"/>
+        <UsageCount Value="10"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="main.lfm"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="16"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="/usr/lib/lazarus/1.6.4/components/lazutils/lazmethodlist.pas"/>
+        <UnitName Value="LazMethodList"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="200"/>
+        <CursorPos Y="238"/>
+        <UsageCount Value="10"/>
       </Unit13>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="34" Column="3"/>
+        <Caret Line="9" Column="26" TopLine="2"/>
       </Position1>
       <Position2>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="36" Column="3"/>
+        <Caret Line="36" Column="11" TopLine="7"/>
       </Position2>
       <Position3>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="37" Column="3"/>
+        <Caret Line="9" Column="26" TopLine="2"/>
       </Position3>
       <Position4>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="38" Column="3"/>
+        <Caret Line="25" Column="18" TopLine="2"/>
       </Position4>
       <Position5>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="39" Column="3"/>
+        <Caret Line="47" Column="54" TopLine="10"/>
       </Position5>
       <Position6>
-        <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="40" Column="3"/>
+        <Filename Value="book.pas"/>
+        <Caret Line="84" Column="51" TopLine="58"/>
       </Position6>
       <Position7>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="44" Column="38" TopLine="5"/>
+        <Caret Line="24" Column="36"/>
       </Position7>
       <Position8>
-        <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="9" Column="26" TopLine="2"/>
+        <Filename Value="book.pas"/>
+        <Caret Line="84" Column="41" TopLine="62"/>
       </Position8>
       <Position9>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="36" Column="11" TopLine="7"/>
+        <Caret Line="50" Column="46" TopLine="12"/>
       </Position9>
       <Position10>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="9" Column="26" TopLine="2"/>
+        <Caret Line="51" Column="46" TopLine="12"/>
       </Position10>
       <Position11>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="25" Column="18" TopLine="2"/>
+        <Caret Line="50" Column="46" TopLine="12"/>
       </Position11>
       <Position12>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="47" Column="54" TopLine="10"/>
+        <Caret Line="58" Column="10" TopLine="17"/>
       </Position12>
       <Position13>
-        <Filename Value="book.pas"/>
-        <Caret Line="84" Column="51" TopLine="58"/>
+        <Filename Value="bookcollection.pas"/>
+        <Caret Line="94" Column="26" TopLine="77"/>
       </Position13>
       <Position14>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="24" Column="36"/>
+        <Caret Line="67" Column="29" TopLine="26"/>
       </Position14>
       <Position15>
         <Filename Value="book.pas"/>
-        <Caret Line="84" Column="41" TopLine="62"/>
+        <Caret Line="84" Column="22" TopLine="55"/>
       </Position15>
       <Position16>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="50" Column="46" TopLine="12"/>
+        <Caret Line="62" Column="37" TopLine="32"/>
       </Position16>
       <Position17>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="51" Column="46" TopLine="12"/>
+        <Caret Line="63" Column="37" TopLine="33"/>
       </Position17>
       <Position18>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="50" Column="46" TopLine="12"/>
+        <Caret Line="82" Column="38" TopLine="41"/>
       </Position18>
       <Position19>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="58" Column="10" TopLine="17"/>
+        <Caret Line="71" Column="9" TopLine="45"/>
       </Position19>
       <Position20>
-        <Filename Value="bookcollection.pas"/>
-        <Caret Line="94" Column="26" TopLine="77"/>
+        <Filename Value="unitbookdialog.pas"/>
+        <Caret Line="72" Column="9" TopLine="46"/>
       </Position20>
       <Position21>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="67" Column="29" TopLine="26"/>
+        <Caret Line="73" Column="9" TopLine="47"/>
       </Position21>
       <Position22>
-        <Filename Value="book.pas"/>
-        <Caret Line="84" Column="22" TopLine="55"/>
+        <Filename Value="unitbookdialog.pas"/>
+        <Caret Line="74" Column="9" TopLine="48"/>
       </Position22>
       <Position23>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="62" Column="37" TopLine="32"/>
+        <Caret Line="75" Column="9" TopLine="49"/>
       </Position23>
       <Position24>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="63" Column="37" TopLine="33"/>
+        <Caret Line="76" Column="9"/>
       </Position24>
       <Position25>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="82" Column="38" TopLine="41"/>
+        <Caret Line="54" Column="28" TopLine="35"/>
       </Position25>
       <Position26>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="71" Column="9" TopLine="45"/>
+        <Caret Line="55" Column="3" TopLine="52"/>
       </Position26>
       <Position27>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="72" Column="9" TopLine="46"/>
+        <Caret Line="54" Column="3" TopLine="51"/>
       </Position27>
       <Position28>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="73" Column="9" TopLine="47"/>
+        <Caret Line="55" Column="3" TopLine="52"/>
       </Position28>
       <Position29>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="74" Column="9" TopLine="48"/>
+        <Caret Line="61" Column="3" TopLine="42"/>
       </Position29>
       <Position30>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="75" Column="9" TopLine="49"/>
+        <Caret Line="65" Column="64" TopLine="43"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>

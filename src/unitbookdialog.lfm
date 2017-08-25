@@ -1,50 +1,51 @@
 object BookEditDialog: TBookEditDialog
-  Left = 560
-  Height = 368
-  Top = 301
-  Width = 682
+  Left = 545
+  Height = 347
+  Top = 356
+  Width = 806
+  ActiveControl = EditTitle
   BorderStyle = bsDialog
   Caption = 'Edit Book Info'
-  ClientHeight = 368
-  ClientWidth = 682
+  ClientHeight = 347
+  ClientWidth = 806
   FormStyle = fsStayOnTop
   OnCreate = FormCreate
   LCLVersion = '1.6.4.0'
   object EditTitle: TEdit
-    Left = 277
+    Left = 329
     Height = 29
     Top = 33
-    Width = 376
+    Width = 463
     TabOrder = 0
     Text = 'Title'
   end
   object EditAuthors: TEdit
-    Left = 277
+    Left = 329
     Height = 29
     Top = 80
-    Width = 376
+    Width = 463
     TabOrder = 1
     Text = 'Authors'
   end
   object EditISBN: TEdit
-    Left = 277
+    Left = 329
     Height = 29
-    Top = 120
-    Width = 376
+    Top = 128
+    Width = 463
     TabOrder = 2
     Text = 'ISBN'
   end
   object EditFilePath: TEdit
-    Left = 277
+    Left = 329
     Height = 29
-    Top = 160
-    Width = 376
+    Top = 176
+    Width = 463
     OnChange = EditFilePathChange
     TabOrder = 3
     Text = 'File Path'
   end
   object ButtonSave: TBitBtn
-    Left = 232
+    Left = 298
     Height = 30
     Top = 296
     Width = 75
@@ -53,7 +54,7 @@ object BookEditDialog: TBookEditDialog
     TabOrder = 4
   end
   object ButtonCancel: TBitBtn
-    Left = 368
+    Left = 434
     Height = 30
     Top = 296
     Width = 75
@@ -63,33 +64,34 @@ object BookEditDialog: TBookEditDialog
   end
   object Panel1: TPanel
     Left = 24
-    Height = 200
+    Height = 220
     Top = 33
-    Width = 150
+    Width = 182
     BorderWidth = 2
     BorderStyle = bsSingle
-    ClientHeight = 200
-    ClientWidth = 150
+    ClientHeight = 218
+    ClientWidth = 180
     TabOrder = 6
     object ImageBookCover: TImage
       Left = 0
-      Height = 200
+      Height = 224
       Top = 0
-      Width = 150
+      Width = 182
+      OnClick = ImageBookCoverClick
       Stretch = True
     end
   end
   object EditImagePath: TEdit
-    Left = 277
+    Left = 329
     Height = 29
-    Top = 204
-    Width = 376
+    Top = 224
+    Width = 463
     OnChange = EditFilePathChange
     TabOrder = 7
     Text = 'Image Path'
   end
   object Label1: TLabel
-    Left = 192
+    Left = 271
     Height = 17
     Top = 45
     Width = 30
@@ -97,7 +99,7 @@ object BookEditDialog: TBookEditDialog
     ParentColor = False
   end
   object Label2: TLabel
-    Left = 192
+    Left = 235
     Height = 17
     Top = 92
     Width = 66
@@ -105,27 +107,32 @@ object BookEditDialog: TBookEditDialog
     ParentColor = False
   end
   object Label3: TLabel
-    Left = 192
+    Left = 268
     Height = 17
-    Top = 132
+    Top = 140
     Width = 33
     Caption = 'ISBN'
     ParentColor = False
   end
   object Label4: TLabel
-    Left = 192
+    Left = 242
     Height = 17
-    Top = 172
+    Top = 188
     Width = 59
     Caption = 'File Path'
     ParentColor = False
   end
   object Label5: TLabel
-    Left = 192
+    Left = 224
     Height = 17
-    Top = 216
+    Top = 236
     Width = 77
     Caption = 'Image Path'
     ParentColor = False
+  end
+  object OpenDialog1: TOpenDialog
+    Filter = 'JPEG|*.jpg;*.jpeg|PNG|*.png'
+    left = 104
+    top = 272
   end
 end

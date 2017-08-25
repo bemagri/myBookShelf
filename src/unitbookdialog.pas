@@ -26,11 +26,13 @@ type
     Label3: Tlabel;
     Label4: Tlabel;
     Label5: Tlabel;
+    Opendialog1: Topendialog;
     Panel1: Tpanel;
     procedure Buttoncancelclick(Sender: Tobject);
     procedure Buttonsaveclick(Sender: Tobject);
     procedure EditFilePathChange(Sender: Tobject);
     procedure Formcreate(Sender: Tobject);
+    procedure Imagebookcoverclick(Sender: Tobject);
     procedure LoadBook(Book:TBook);
   private
     mBook:TBook;
@@ -51,8 +53,19 @@ implementation
 
 procedure Tbookeditdialog.Formcreate(Sender: Tobject);
 begin
+  ActiveControl:=ButtonSave;
 
 End;
+
+procedure Tbookeditdialog.Imagebookcoverclick(Sender: Tobject);
+begin
+  if Opendialog1.Execute then
+  begin
+       EditImagePath.Text:= Opendialog1.FileName;
+       ImageBookCover.Picture.LoadFromFile(EditImagePath.Text);
+  end;
+End;
+
 
 procedure Tbookeditdialog.EditFilePathChange(Sender: Tobject);
 begin
