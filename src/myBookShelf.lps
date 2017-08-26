@@ -8,7 +8,7 @@
         <Filename Value="myBookShelf.lpr"/>
         <IsPartOfProject Value="True"/>
         <CursorPos Y="21"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -17,10 +17,11 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
-        <TopLine Value="197"/>
-        <CursorPos X="47" Y="197"/>
-        <UsageCount Value="53"/>
+        <TopLine Value="53"/>
+        <CursorPos X="33" Y="85"/>
+        <UsageCount Value="56"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -28,11 +29,9 @@
         <Filename Value="book.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Book"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="49"/>
-        <CursorPos X="24" Y="75"/>
-        <UsageCount Value="53"/>
+        <CursorPos X="63" Y="4"/>
+        <UsageCount Value="56"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
@@ -41,7 +40,7 @@
         <UnitName Value="bookCollection"/>
         <EditorIndex Value="3"/>
         <CursorPos X="22" Y="125"/>
-        <UsageCount Value="50"/>
+        <UsageCount Value="53"/>
         <Loaded Value="True"/>
       </Unit3>
       <Unit4>
@@ -54,7 +53,7 @@
         <EditorIndex Value="5"/>
         <TopLine Value="48"/>
         <CursorPos X="2" Y="67"/>
-        <UsageCount Value="31"/>
+        <UsageCount Value="34"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit4>
@@ -111,7 +110,7 @@
       <Unit12>
         <Filename Value="main.lfm"/>
         <EditorIndex Value="1"/>
-        <UsageCount Value="18"/>
+        <UsageCount Value="19"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit12>
@@ -127,123 +126,123 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="36" Column="11" TopLine="7"/>
+        <Caret Line="9" Column="26" TopLine="2"/>
       </Position1>
       <Position2>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="9" Column="26" TopLine="2"/>
+        <Caret Line="25" Column="18" TopLine="2"/>
       </Position2>
       <Position3>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="25" Column="18" TopLine="2"/>
+        <Caret Line="47" Column="54" TopLine="10"/>
       </Position3>
       <Position4>
-        <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="47" Column="54" TopLine="10"/>
-      </Position4>
-      <Position5>
         <Filename Value="book.pas"/>
         <Caret Line="84" Column="51" TopLine="58"/>
-      </Position5>
-      <Position6>
+      </Position4>
+      <Position5>
         <Filename Value="unitbookdialog.pas"/>
         <Caret Line="24" Column="36"/>
-      </Position6>
-      <Position7>
+      </Position5>
+      <Position6>
         <Filename Value="book.pas"/>
         <Caret Line="84" Column="41" TopLine="62"/>
+      </Position6>
+      <Position7>
+        <Filename Value="unitbookdialog.pas"/>
+        <Caret Line="50" Column="46" TopLine="12"/>
       </Position7>
       <Position8>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="50" Column="46" TopLine="12"/>
+        <Caret Line="51" Column="46" TopLine="12"/>
       </Position8>
       <Position9>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="51" Column="46" TopLine="12"/>
+        <Caret Line="50" Column="46" TopLine="12"/>
       </Position9>
       <Position10>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="50" Column="46" TopLine="12"/>
+        <Caret Line="58" Column="10" TopLine="17"/>
       </Position10>
       <Position11>
-        <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="58" Column="10" TopLine="17"/>
-      </Position11>
-      <Position12>
         <Filename Value="bookcollection.pas"/>
         <Caret Line="94" Column="26" TopLine="77"/>
-      </Position12>
-      <Position13>
+      </Position11>
+      <Position12>
         <Filename Value="unitbookdialog.pas"/>
         <Caret Line="67" Column="29" TopLine="26"/>
-      </Position13>
-      <Position14>
+      </Position12>
+      <Position13>
         <Filename Value="book.pas"/>
         <Caret Line="84" Column="22" TopLine="55"/>
+      </Position13>
+      <Position14>
+        <Filename Value="unitbookdialog.pas"/>
+        <Caret Line="62" Column="37" TopLine="32"/>
       </Position14>
       <Position15>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="62" Column="37" TopLine="32"/>
+        <Caret Line="63" Column="37" TopLine="33"/>
       </Position15>
       <Position16>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="63" Column="37" TopLine="33"/>
+        <Caret Line="82" Column="38" TopLine="41"/>
       </Position16>
       <Position17>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="82" Column="38" TopLine="41"/>
+        <Caret Line="71" Column="9" TopLine="45"/>
       </Position17>
       <Position18>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="71" Column="9" TopLine="45"/>
+        <Caret Line="72" Column="9" TopLine="46"/>
       </Position18>
       <Position19>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="72" Column="9" TopLine="46"/>
+        <Caret Line="73" Column="9" TopLine="47"/>
       </Position19>
       <Position20>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="73" Column="9" TopLine="47"/>
+        <Caret Line="74" Column="9" TopLine="48"/>
       </Position20>
       <Position21>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="74" Column="9" TopLine="48"/>
+        <Caret Line="75" Column="9" TopLine="49"/>
       </Position21>
       <Position22>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="75" Column="9" TopLine="49"/>
+        <Caret Line="76" Column="9"/>
       </Position22>
       <Position23>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="76" Column="9"/>
+        <Caret Line="54" Column="28" TopLine="35"/>
       </Position23>
       <Position24>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="54" Column="28" TopLine="35"/>
+        <Caret Line="55" Column="3" TopLine="52"/>
       </Position24>
       <Position25>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="55" Column="3" TopLine="52"/>
+        <Caret Line="54" Column="3" TopLine="51"/>
       </Position25>
       <Position26>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="54" Column="3" TopLine="51"/>
+        <Caret Line="55" Column="3" TopLine="52"/>
       </Position26>
       <Position27>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="55" Column="3" TopLine="52"/>
+        <Caret Line="61" Column="3" TopLine="42"/>
       </Position27>
       <Position28>
         <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="61" Column="3" TopLine="42"/>
+        <Caret Line="65" Column="64" TopLine="43"/>
       </Position28>
       <Position29>
-        <Filename Value="unitbookdialog.pas"/>
-        <Caret Line="65" Column="64" TopLine="43"/>
-      </Position29>
-      <Position30>
         <Filename Value="book.pas"/>
         <Caret Line="97" Column="26" TopLine="73"/>
+      </Position29>
+      <Position30>
+        <Filename Value="main.pas"/>
+        <Caret Line="77" Column="25" TopLine="62"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>

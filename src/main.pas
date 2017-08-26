@@ -55,7 +55,7 @@ implementation
 
 procedure Tform1.Formpaint(Sender: Tobject);
 begin
- //myBook.DrawCover(PanelBackground.Canvas);
+
 End;
 
 procedure Tform1.Panelbackgroundclick(Sender: Tobject);
@@ -72,8 +72,22 @@ begin
 End;
 
 procedure Tform1.Panelbackgroundpaint(Sender: Tobject);
+var x,y:Integer;
 begin
- PanelBackground.Canvas.StretchDraw(PanelBackground.Canvas.ClipRect, background.Graphic);
+
+ //PanelBackground.Canvas.Draw(PanelBackground.Canvas.ClipRect.Left,PanelBackground.Canvas.ClipRect.Top, background.Graphic);
+
+ //x:=background.Graphic.Width;
+ //y:=0;
+
+ //while PanelBackground.Canvas.Width > background.Graphic.Width+x do
+ //begin
+  PanelBackground.Canvas.StretchDraw(PanelBackground.Canvas.ClipRect, background.Graphic);
+ // x:= background.Graphic.Width;
+ //end;
+
+ //if PanelBackground.Canvas.ClipRect.Width > background.Graphic.Width then
+ //   PanelBackground.Canvas.Draw(PanelBackground.Canvas.ClipRect.Left + background.Graphic.Width, 0, background.Graphic);
 End;
 
 procedure Tform1.Rearrangebooksonscreen;
