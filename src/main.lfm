@@ -497,6 +497,8 @@ object Form1: TForm1
     Align = alClient
     TabOrder = 0
     OnClick = PanelBackgroundClick
+    OnDragDrop = PanelBackgroundDragDrop
+    OnDragOver = PanelBackgroundDragOver
     OnResize = PanelBackgroundResize
     OnPaint = PanelBackgroundPaint
   end

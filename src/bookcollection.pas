@@ -13,7 +13,7 @@ type
 
 TBookCollection = class(TObject)
   private
-    mList : TList;
+    mList : TFPList;
     mDataPath:String;
     function Get(Index: Integer): Tbook;
 
@@ -24,6 +24,7 @@ TBookCollection = class(TObject)
     property  Books[Index: Integer]:TBook read Get;
     procedure Remove(book:TBook);
     function Count:Integer;
+    procedure SwapBooks(Source,Dest:Integer);
     constructor Create;
     destructor Destroy;
 
@@ -43,7 +44,7 @@ begin
   mList.Add(book);
 End;
 
-procedure Tbookcollection.Remove(book:Tbook);
+procedure Tbookcollection.Remove(Book: Tbook);
 begin
   mList.Remove(book);
 end;
@@ -53,9 +54,14 @@ begin
   result:=mList.Count;
 end;
 
+procedure Tbookcollection.Swapbooks(Source, Dest: Integer);
+begin
+ mList.Move(Source,Dest);
+end;
+
 constructor Tbookcollection.Create;
 begin
-  mList:=TList.Create;
+  mList:=TFPList.Create;
 end;
 
 destructor Tbookcollection.Destroy;

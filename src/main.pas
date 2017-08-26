@@ -29,9 +29,15 @@ type
     procedure Formkeydown(Sender: Tobject; var Key: Word; Shift: Tshiftstate);
     procedure Formpaint(Sender: Tobject);
     procedure Panelbackgroundclick(Sender: Tobject);
+    procedure Panelbackgrounddragdrop(Sender, Source: Tobject; X, Y: Integer);
+    procedure Panelbackgrounddragover(Sender, Source: Tobject; X, Y: Integer;
+      State: Tdragstate; var Accept: Boolean);
     procedure Panelbackgroundpaint(Sender: Tobject);
     procedure RearrangeBooksOnScreen();
     procedure Panelbackgroundresize(Sender: Tobject);
+    function getBookIndexAtPoint(X,Y:Integer):Integer;
+    procedure UnselectAll;
+    function getCoverIndex(cover:TImage):Integer;
   private
     { private declarations }
   public
@@ -59,35 +65,32 @@ begin
 End;
 
 procedure Tform1.Panelbackgroundclick(Sender: Tobject);
-var i:integer;
 begin
  ActiveControl:=PanelBackground;
 
- for i:=0 to BookList.Count-1 do
- begin
-  BookList.Books[i].isSelected:=False;
- end;
+ UnselectAll;
  PanelBackground.Repaint;
+End;
 
+procedure Tform1.Panelbackgrounddragdrop(Sender, Source: Tobject; X, Y: Integer);
+var src,dest:integer;
+begin
+ src:=getCoverIndex(TImage(Source));
+ dest:=getBookIndexAtPoint(X,Y);
+   if (src > -1) and (dest > -1) then BookList.SwapBooks(src,dest);
+   UnselectAll;
+   RearrangeBooksOnScreen();
+End;
+
+procedure Tform1.Panelbackgrounddragover(Sender, Source: Tobject; X,
+  Y: Integer; State: Tdragstate; var Accept: Boolean);
+begin
+ Accept:=True;
 End;
 
 procedure Tform1.Panelbackgroundpaint(Sender: Tobject);
-var x,y:Integer;
 begin
-
- //PanelBackground.Canvas.Draw(PanelBackground.Canvas.ClipRect.Left,PanelBackground.Canvas.ClipRect.Top, background.Graphic);
-
- //x:=background.Graphic.Width;
- //y:=0;
-
- //while PanelBackground.Canvas.Width > background.Graphic.Width+x do
- //begin
   PanelBackground.Canvas.StretchDraw(PanelBackground.Canvas.ClipRect, background.Graphic);
- // x:= background.Graphic.Width;
- //end;
-
- //if PanelBackground.Canvas.ClipRect.Width > background.Graphic.Width then
- //   PanelBackground.Canvas.Draw(PanelBackground.Canvas.ClipRect.Left + background.Graphic.Width, 0, background.Graphic);
 End;
 
 procedure Tform1.Rearrangebooksonscreen;
@@ -121,6 +124,45 @@ begin
 
  EditSearch.Left:=Width-EditSearch.Width-20;
  End;
+
+function Tform1.Getbookindexatpoint(X, Y: Integer): Integer;
+var i:Integer;
+    cover:TImage;
+begin
+ for i:=0 to BookList.Count-1 do
+ begin
+   cover:=BookList.Books[i].Cover;
+   if (cover.Left > X) and (cover.Left - bookWidth < X) and (cover.Top <= Y) and (cover.Top + bookHeight > Y) then
+   begin
+     result :=i;
+     exit;
+   end;
+ end;
+ result:=-1;
+end;
+
+procedure Tform1.Unselectall;
+var i:Integer;
+begin
+ for i:=0 to BookList.Count-1 do
+ begin
+  BookList.Books[i].isSelected:=False;
+ end;
+end;
+
+function Tform1.Getcoverindex(Cover: Timage): Integer;
+var i:integer;
+begin
+ for i:=0 to Booklist.count-1 do
+ begin
+  if Booklist.books[i].Cover = Cover then
+  begin
+    result:=i;
+    exit;
+  end;
+ end;
+ result:=-1;
+end;
 
 
 procedure Tform1.Formclose(Sender: Tobject; var Closeaction: Tcloseaction);

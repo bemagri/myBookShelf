@@ -22,8 +22,11 @@ type
       mImageHeight : Integer;
       mImageWidth : Integer;
       mIsSelected: Boolean;
+      mLeft:Integer;
+      mTop:Integer;
       procedure Setfile(Avalue: String);
       procedure Setimage(Avalue: String);
+
     public
       constructor Create(parent:TComponent);
       procedure Bookmousedown(Sender: Tobject; Button: Tmousebutton;
@@ -100,6 +103,7 @@ begin
   if Button = TMouseButton.mbLeft then
      begin
         mIsSelected:= not mIsSelected;
+        mCover.BeginDrag(True);
         mCover.Repaint;
      end;
 End;
