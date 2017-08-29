@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, Sysutils, Fileutil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  ComCtrls, Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType;
+  Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType;
 
 
 type
@@ -15,19 +15,22 @@ type
 
   Tform1 = class(Tform)
     EditSearch: Tedit;
-    Image1: Timage;
+    ButtonSettings: Timage;
     ImageToolBar: Timage;
     ButtonAdd: Timage;
     Opendialog1: Topendialog;
     PanelBackground: Tscrollbox;
     procedure Buttonaddclick(Sender: Tobject);
+    procedure Buttonaddmouseenter(Sender: Tobject);
+    procedure Buttonaddmouseleave(Sender: Tobject);
+    procedure Buttonsettingsmouseenter(Sender: Tobject);
+    procedure Buttonsettingsmouseleave(Sender: Tobject);
     procedure Editsearchenter(Sender: Tobject);
     procedure Editsearchexit(Sender: Tobject);
     procedure Editsearchkeypress(Sender: Tobject; var Key: Char);
     procedure Formclose(Sender: Tobject; var Closeaction: Tcloseaction);
     procedure Formcreate(Sender: Tobject);
     procedure Formkeydown(Sender: Tobject; var Key: Word; Shift: Tshiftstate);
-    procedure Formpaint(Sender: Tobject);
     procedure Panelbackgroundclick(Sender: Tobject);
     procedure Panelbackgrounddragdrop(Sender, Source: Tobject; X, Y: Integer);
     procedure Panelbackgrounddragover(Sender, Source: Tobject; X, Y: Integer;
@@ -49,7 +52,7 @@ var
   BookList:TBookCollection;
   Xspace, Yspace:integer;
   dataPath:String;
-  background:TPicture;
+  background,toolbar:TPicture;
   bookWidth,bookHeight:Integer;
 
 
@@ -58,11 +61,6 @@ implementation
 {$R *.lfm}
 
 { Tform1 }
-
-procedure Tform1.Formpaint(Sender: Tobject);
-begin
-
-End;
 
 procedure Tform1.Panelbackgroundclick(Sender: Tobject);
 begin
@@ -89,8 +87,28 @@ begin
 End;
 
 procedure Tform1.Panelbackgroundpaint(Sender: Tobject);
+var w,h:Integer;
+    x,y:Integer;
 begin
-  PanelBackground.Canvas.StretchDraw(PanelBackground.Canvas.ClipRect, background.Graphic);
+
+  x:=0;
+  y:=0;
+  w:=background.Width;
+  h:=background.Height;
+
+  while x < PanelBackground.Canvas.Width do
+  begin
+
+    while y < PanelBackground.Canvas.Height do
+    begin
+      PanelBackground.Canvas.Draw(x,y,background.Graphic);
+      y:=y+h;
+    end;
+
+    x:=x+w;
+    y:=0;
+  end;
+
 End;
 
 procedure Tform1.Rearrangebooksonscreen;
@@ -105,7 +123,7 @@ begin
     if X+Xspace > PanelBackground.Width-bookWidth then
     begin
       X:=0;
-      Y:=Y+Yspace+bookHeight;
+      Y:=Y+Yspace+bookHeight+26;
     end;
     with BookList.Books[i] do
     begin
@@ -192,6 +210,41 @@ begin
 end;
 End;
 
+procedure Tform1.Buttonaddmouseenter(Sender: Tobject);
+var hover:TPicture;
+begin
+hover:=TPicture.Create;
+hover.LoadFromLazarusResource('add_hover');
+Buttonadd.Picture:=hover;
+End;
+
+procedure Tform1.Buttonaddmouseleave(Sender: Tobject);
+var image:TPicture;
+begin
+ image:=TPicture.Create;
+ image.LoadFromLazarusResource('add');
+Buttonadd.Picture:=image;
+
+End;
+
+procedure Tform1.Buttonsettingsmouseenter(Sender: Tobject);
+var hover:TPicture;
+begin
+hover:=TPicture.Create;
+hover.LoadFromLazarusResource('gear_hover');
+ButtonSettings.Picture:=hover;
+
+End;
+
+procedure Tform1.Buttonsettingsmouseleave(Sender: Tobject);
+var image:TPicture;
+begin
+ image:=TPicture.Create;
+ image.LoadFromLazarusResource('gear');
+ButtonSettings.Picture:=image;
+
+End;
+
 procedure Tform1.Editsearchenter(Sender: Tobject);
 begin
 EditSearch.Caption:='';
@@ -213,21 +266,19 @@ end;
 End;
 
 procedure Tform1.Formcreate(Sender: Tobject);
-var i, X, Y:integer;
+var i:integer;
 begin
  bookWidth:=150;
  bookHeight:=200;
  Xspace:=40;
- Yspace:=30;
- X:=0;
- Y:=0;
+ Yspace:=25;
 
  Form1.KeyPreview:=True;
  ActiveControl:=PanelBackground;
 
 
  background:=TPicture.Create;
- background.LoadFromLazarusResource('back');
+ background.LoadFromLazarusResource('shelf');
 
  {$IFDEF MSWINDOWS}
  DataPath:= GetEnvironmentVariableUTF8('appdata') + '\mybookshelf'; //fix the data store dir

@@ -19,11 +19,7 @@ type
       mFilePath : String;
       mCover : TImage;
       mImagePath : String;
-      mImageHeight : Integer;
-      mImageWidth : Integer;
       mIsSelected: Boolean;
-      mLeft:Integer;
-      mTop:Integer;
       procedure Setfile(Avalue: String);
       procedure Setimage(Avalue: String);
 
@@ -38,7 +34,7 @@ type
       property Title : String read mTitle write mTitle;
       property Authors : String read mAuthors write mAuthors;
       property ISBN : String read mISBN write mISBN;
-      destructor Destroy;
+      destructor Destroy; override;
       procedure BookDoubleClick(Sender:TObject);
       procedure BookCoverPaint(Sender:TObject);
   end;

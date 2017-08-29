@@ -14,7 +14,6 @@ type
 TBookCollection = class(TObject)
   private
     mList : TFPList;
-    mDataPath:String;
     function Get(Index: Integer): Tbook;
 
   public
@@ -26,7 +25,7 @@ TBookCollection = class(TObject)
     function Count:Integer;
     procedure SwapBooks(Source,Dest:Integer);
     constructor Create;
-    destructor Destroy;
+    destructor Destroy; override;
 
 end;
 
