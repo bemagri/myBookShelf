@@ -8,6 +8,16 @@
       <Title Value="myBookShelf"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
+      <Icon Value="0"/>
+      <Resources Count="7">
+        <Resource_0 FileName="../resources/add_hover.png" Type="RCDATA" ResourceName="ADD_HOVER"/>
+        <Resource_1 FileName="../resources/add.png" Type="RCDATA" ResourceName="ADD"/>
+        <Resource_2 FileName="../resources/gear_hover.png" Type="RCDATA" ResourceName="GEAR_HOVER"/>
+        <Resource_3 FileName="../resources/shelf.jpg" Type="BITMAP" ResourceName="SHELF"/>
+        <Resource_4 FileName="../resources/gear.png" Type="RCDATA" ResourceName="GEAR"/>
+        <Resource_5 FileName="../resources/toolbar.jpg" Type="RCDATA" ResourceName="TOOLBAR"/>
+        <Resource_6 FileName="../resources/generic_cover.jpg" Type="RCDATA" ResourceName="GENERIC_COVER"/>
+      </Resources>
     </General>
     <i18n>
       <EnableI18N LFM="False"/>
@@ -16,7 +26,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="1"/>
-      <BuildNr Value="7"/>
+      <BuildNr Value="12"/>
       <StringTable ProductVersion=""/>
     </VersionInfo>
     <CustomData Count="13">

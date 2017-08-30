@@ -42,7 +42,7 @@ type
     procedure UnselectAll;
     function getCoverIndex(cover:TImage):Integer;
   private
-    { private declarations }
+    mAdd,mAddHover,mGear,mGearHover:TPicture;
   public
     { public declarations }
   end;
@@ -211,38 +211,23 @@ end;
 End;
 
 procedure Tform1.Buttonaddmouseenter(Sender: Tobject);
-var hover:TPicture;
 begin
-hover:=TPicture.Create;
-hover.LoadFromLazarusResource('add_hover');
-Buttonadd.Picture:=hover;
+Buttonadd.Picture:=mAddHover;
 End;
 
 procedure Tform1.Buttonaddmouseleave(Sender: Tobject);
-var image:TPicture;
 begin
- image:=TPicture.Create;
- image.LoadFromLazarusResource('add');
-Buttonadd.Picture:=image;
-
+Buttonadd.Picture:=mAdd;
 End;
 
 procedure Tform1.Buttonsettingsmouseenter(Sender: Tobject);
-var hover:TPicture;
 begin
-hover:=TPicture.Create;
-hover.LoadFromLazarusResource('gear_hover');
-ButtonSettings.Picture:=hover;
-
+ButtonSettings.Picture:=mGearHover;
 End;
 
 procedure Tform1.Buttonsettingsmouseleave(Sender: Tobject);
-var image:TPicture;
 begin
- image:=TPicture.Create;
- image.LoadFromLazarusResource('gear');
-ButtonSettings.Picture:=image;
-
+ButtonSettings.Picture:=mGear;
 End;
 
 procedure Tform1.Editsearchenter(Sender: Tobject);
@@ -279,6 +264,17 @@ begin
 
  background:=TPicture.Create;
  background.LoadFromLazarusResource('shelf');
+
+ mAdd:=TPicture.Create;
+ mAddHover:=Tpicture.Create;
+ mGear:=Tpicture.Create;
+ mGearHover:=Tpicture.Create;
+ mAdd.LoadFromLazarusResource('add');
+ mAddHover.LoadFromLazarusResource('add_hover');
+ mGear.LoadFromLazarusResource('gear');
+ mGearHover.LoadFromLazarusResource('gear_hover');
+ ButtonAdd.Picture:=mAdd;
+ ButtonSettings.Picture:=mGear;
 
  {$IFDEF MSWINDOWS}
  DataPath:= GetEnvironmentVariableUTF8('appdata') + '\mybookshelf'; //fix the data store dir
