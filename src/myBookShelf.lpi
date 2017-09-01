@@ -122,7 +122,7 @@ in an easy way."/>
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="5">
+    <Units Count="6">
       <Unit0>
         <Filename Value="myBookShelf.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -152,6 +152,13 @@ in an easy way."/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UnitBookDialog"/>
       </Unit4>
+      <Unit5>
+        <Filename Value="unitsettingsdialog.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="SettingsDialog"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="unitSettingsDialog"/>
+      </Unit5>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

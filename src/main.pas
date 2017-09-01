@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, Sysutils, Fileutil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType;
+  Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType, unitSettingsDialog;
 
 
 type
@@ -23,6 +23,7 @@ type
     procedure Buttonaddclick(Sender: Tobject);
     procedure Buttonaddmouseenter(Sender: Tobject);
     procedure Buttonaddmouseleave(Sender: Tobject);
+    procedure ButtonSettingsClick(Sender: TObject);
     procedure Buttonsettingsmouseenter(Sender: Tobject);
     procedure Buttonsettingsmouseleave(Sender: Tobject);
     procedure Editsearchenter(Sender: Tobject);
@@ -54,6 +55,7 @@ var
   dataPath:String;
   background,toolbar:TPicture;
   bookWidth,bookHeight:Integer;
+
 
 
 implementation
@@ -220,6 +222,13 @@ begin
 Buttonadd.Picture:=mAdd;
 End;
 
+procedure Tform1.ButtonSettingsClick(Sender: TObject);
+var SettingsDialog: TSettingsDialog;
+begin
+     SettingsDialog:=TSettingsDialog.Create(nil);
+     SettingsDialog.ShowModal;
+end;
+
 procedure Tform1.Buttonsettingsmouseenter(Sender: Tobject);
 begin
 ButtonSettings.Picture:=mGearHover;
@@ -233,7 +242,6 @@ End;
 procedure Tform1.Editsearchenter(Sender: Tobject);
 begin
 EditSearch.Caption:='';
-
 End;
 
 procedure Tform1.Editsearchexit(Sender: Tobject);

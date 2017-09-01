@@ -249,6 +249,7 @@ object Form1: TForm1
     Height = 42
     Top = 8
     Width = 42
+    OnClick = ButtonSettingsClick
     OnMouseEnter = ButtonSettingsMouseEnter
     OnMouseLeave = ButtonSettingsMouseLeave
   end
