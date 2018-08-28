@@ -3,13 +3,13 @@
   <ProjectSession>
     <Version Value="10"/>
     <BuildModes Active="Default"/>
-    <Units Count="15">
+    <Units Count="17">
       <Unit0>
         <Filename Value="myBookShelf.lpr"/>
         <IsPartOfProject Value="True"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="72" Y="10"/>
         <UsageCount Value="70"/>
-        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="main.pas"/>
@@ -17,32 +17,28 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="4"/>
-        <TopLine Value="216"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="9"/>
         <CursorPos X="50" Y="229"/>
         <UsageCount Value="70"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="book.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Book"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="82"/>
         <CursorPos X="36" Y="37"/>
         <UsageCount Value="70"/>
-        <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="bookcollection.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="bookCollection"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="7"/>
         <CursorPos X="34" Y="28"/>
         <UsageCount Value="67"/>
-        <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="unitbookdialog.pas"/>
@@ -51,214 +47,100 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="UnitBookDialog"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="7"/>
         <CursorPos X="2" Y="67"/>
         <UsageCount Value="48"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit4>
       <Unit5>
+        <Filename Value="unitsettingsdialog.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="SettingsDialog"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="unitSettingsDialog"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="55" Y="12"/>
+        <UsageCount Value="25"/>
+      </Unit5>
+      <Unit6>
         <Filename Value="/usr/lib/lazarus/1.6.4/lcl/include/canvas.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="354"/>
         <CursorPos Y="378"/>
         <UsageCount Value="8"/>
-      </Unit5>
-      <Unit6>
+      </Unit6>
+      <Unit7>
         <Filename Value="/usr/lib/lazarus/1.6.4/lcl/include/lclintf.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="254"/>
         <CursorPos Y="275"/>
         <UsageCount Value="7"/>
-      </Unit6>
-      <Unit7>
+      </Unit7>
+      <Unit8>
         <Filename Value="/usr/lib/lazarus/1.6.4/lcl/interfaces/gtk2/gtk2winapi.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="4718"/>
         <CursorPos Y="4740"/>
         <UsageCount Value="7"/>
-      </Unit7>
-      <Unit8>
+      </Unit8>
+      <Unit9>
         <Filename Value="/usr/lib/lazarus/1.6.4/lcl/interfaces/gtk2/gtk2widgetset.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="5406"/>
         <CursorPos Y="5428"/>
         <UsageCount Value="7"/>
-      </Unit8>
-      <Unit9>
+      </Unit9>
+      <Unit10>
         <Filename Value="/usr/lib/lazarus/1.6.4/lcl/dynhasharray.pp"/>
         <UnitName Value="DynHashArray"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="598"/>
         <CursorPos Y="620"/>
         <UsageCount Value="7"/>
-      </Unit9>
-      <Unit10>
+      </Unit10>
+      <Unit11>
         <Filename Value="/usr/lib/lazarus/1.6.4/lcl/include/customform.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="133"/>
         <CursorPos Y="161"/>
         <UsageCount Value="8"/>
-      </Unit10>
-      <Unit11>
+      </Unit11>
+      <Unit12>
         <Filename Value="/usr/lib/lazarus/1.6.4/lcl/include/application.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="2183"/>
         <CursorPos Y="2203"/>
         <UsageCount Value="8"/>
-      </Unit11>
-      <Unit12>
-        <Filename Value="main.lfm"/>
-        <EditorIndex Value="1"/>
-        <UsageCount Value="26"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit12>
       <Unit13>
+        <Filename Value="main.lfm"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="26"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit13>
+      <Unit14>
         <Filename Value="/usr/lib/lazarus/1.6.4/components/lazutils/lazmethodlist.pas"/>
         <UnitName Value="LazMethodList"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="200"/>
         <CursorPos Y="238"/>
         <UsageCount Value="8"/>
-      </Unit13>
-      <Unit14>
-        <Filename Value="unitsettingsdialog.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="SettingsDialog"/>
-        <ResourceBaseClass Value="Form"/>
-        <UnitName Value="unitSettingsDialog"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="5"/>
-        <CursorPos X="55" Y="12"/>
-        <UsageCount Value="25"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit14>
+      <Unit15>
+        <Filename Value="../../../Downloads/BigNumbers-master/Source/GenerateBaseConversionTables.dproj"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="../../../Downloads/BigNumbers-master/Source/Velthuis.BigIntegers.pas"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="31"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit16>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
-      <Position1>
-        <Filename Value="main.pas"/>
-        <Caret Line="218" TopLine="211"/>
-      </Position1>
-      <Position2>
-        <Filename Value="main.pas"/>
-        <Caret Line="229" Column="35" TopLine="210"/>
-      </Position2>
-      <Position3>
-        <Filename Value="main.pas"/>
-        <Caret Line="230" Column="35" TopLine="211"/>
-      </Position3>
-      <Position4>
-        <Filename Value="main.pas"/>
-        <Caret Line="232" Column="24" TopLine="221"/>
-      </Position4>
-      <Position5>
-        <Filename Value="main.pas"/>
-        <Caret Line="250" Column="15" TopLine="245"/>
-      </Position5>
-      <Position6>
-        <Filename Value="main.pas"/>
-        <Caret Line="229" Column="17" TopLine="207"/>
-      </Position6>
-      <Position7>
-        <Filename Value="main.pas"/>
-        <Caret Line="228" Column="5" TopLine="207"/>
-      </Position7>
-      <Position8>
-        <Filename Value="main.pas"/>
-        <Caret Line="241" Column="7" TopLine="220"/>
-      </Position8>
-      <Position9>
-        <Filename Value="main.pas"/>
-        <Caret Line="256" Column="30" TopLine="222"/>
-      </Position9>
-      <Position10>
-        <Filename Value="main.pas"/>
-        <Caret Line="89" Column="28" TopLine="60"/>
-      </Position10>
-      <Position11>
-        <Filename Value="main.pas"/>
-        <Caret Line="87" Column="28" TopLine="63"/>
-      </Position11>
-      <Position12>
-        <Filename Value="book.pas"/>
-        <Caret Line="77" Column="124" TopLine="43"/>
-      </Position12>
-      <Position13>
-        <Filename Value="book.pas"/>
-        <Caret Line="33" Column="29" TopLine="12"/>
-      </Position13>
-      <Position14>
-        <Filename Value="book.pas"/>
-        <Caret Line="24" Column="28" TopLine="5"/>
-      </Position14>
-      <Position15>
-        <Filename Value="book.pas"/>
-        <Caret Line="23" Column="7" TopLine="2"/>
-      </Position15>
-      <Position16>
-        <Filename Value="main.pas"/>
-        <Caret Line="126" Column="32"/>
-      </Position16>
-      <Position17>
-        <Filename Value="main.pas"/>
-        <Caret Line="9" Column="3"/>
-      </Position17>
-      <Position18>
-        <Filename Value="main.pas"/>
-        <Caret Line="33" Column="59" TopLine="12"/>
-      </Position18>
-      <Position19>
-        <Filename Value="bookcollection.pas"/>
-        <Caret Line="44" Column="3" TopLine="5"/>
-      </Position19>
-      <Position20>
-        <Filename Value="bookcollection.pas"/>
-        <Caret Line="17" Column="5"/>
-      </Position20>
-      <Position21>
-        <Filename Value="bookcollection.pas"/>
-        <Caret Line="16" Column="21"/>
-      </Position21>
-      <Position22>
-        <Filename Value="book.pas"/>
-        <Caret Line="21" Column="27"/>
-      </Position22>
-      <Position23>
-        <Filename Value="main.pas"/>
-        <Caret Line="307" Column="5" TopLine="287"/>
-      </Position23>
-      <Position24>
-        <Filename Value="myBookShelf.lpr"/>
-        <Caret Line="13" Column="9"/>
-      </Position24>
-      <Position25>
-        <Filename Value="myBookShelf.lpr"/>
-        <Caret Line="22" Column="11"/>
-      </Position25>
-      <Position26>
-        <Filename Value="myBookShelf.lpr"/>
-        <Caret Line="21"/>
-      </Position26>
-      <Position27>
-        <Filename Value="myBookShelf.lpr"/>
-        <Caret Line="14" Column="9"/>
-      </Position27>
-      <Position28>
-        <Filename Value="main.pas"/>
-        <Caret Line="23" Column="29" TopLine="20"/>
-      </Position28>
-      <Position29>
-        <Filename Value="myBookShelf.lpr"/>
-        <Caret Line="23" Column="29"/>
-      </Position29>
-      <Position30>
-        <Filename Value="main.pas"/>
-        <Caret Line="58" Column="3" TopLine="32"/>
-      </Position30>
-    </JumpHistory>
+    <JumpHistory HistoryIndex="-1"/>
   </ProjectSession>
   <Debugging>
     <Watches Count="2">
