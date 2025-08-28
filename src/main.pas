@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, Sysutils, Fileutil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType, unitSettingsDialog;
+  Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType, IniFiles, unitSettingsDialog;
 
 
 type
@@ -223,10 +223,13 @@ Buttonadd.Picture:=mAdd;
 End;
 
 procedure Tform1.ButtonSettingsClick(Sender: TObject);
-var SettingsDialog: TSettingsDialog;
 begin
-     SettingsDialog:=TSettingsDialog.Create(nil);
-     SettingsDialog.ShowModal;
+SettingsDialog := TSettingsDialog.Create(Self);
+  try
+    SettingsDialog.ShowModal;
+  finally
+    SettingsDialog.Free;
+  end;
 end;
 
 procedure Tform1.Buttonsettingsmouseenter(Sender: Tobject);
@@ -259,7 +262,10 @@ end;
 End;
 
 procedure Tform1.Formcreate(Sender: Tobject);
-var i:integer;
+var 
+ i:integer;
+ cfgDir, cfgPath, dataDir: String;
+ ini: TIniFile;
 begin
  bookWidth:=150;
  bookHeight:=200;
@@ -284,23 +290,27 @@ begin
  ButtonAdd.Picture:=mAdd;
  ButtonSettings.Picture:=mGear;
 
- {$IFDEF MSWINDOWS}
- DataPath:= GetEnvironmentVariableUTF8('appdata') + '\mybookshelf'; //fix the data store dir
+ // Load config.ini if present to resolve dataPath and options
+  {$IFDEF MSWINDOWS}
+  cfgDir := GetEnvironmentVariableUTF8('APPDATA') + DirectorySeparator + 'mybookshelf' + DirectorySeparator;
+  {$ENDIF}
+  {$IFDEF UNIX}
+  cfgDir := GetEnvironmentVariableUTF8('HOME') + DirectorySeparator + '.mybookshelf' + DirectorySeparator;
+  {$ENDIF}
+  if not DirectoryExistsUTF8(cfgDir) then CreateDirUTF8(cfgDir);
 
-if not DirectoryExistsUTF8(dataPath) then
-    CreateDirUTF8(dataPath);
+  cfgPath := cfgDir + 'config.ini';
+  ini := TIniFile.Create(cfgPath);
+  try
+    dataDir := ini.ReadString('general', 'data_dir', cfgDir);
+    // You can also read autoPdfCover if you want it here:
+    // autoPdfCover := ini.ReadBool('general', 'auto_pdf_cover', True);
+  finally
+    ini.Free;
+  end;
 
-dataPath:= dataPath + '\data.dat';
- {$ENDIF}
-
- {$IFDEF UNIX}
- DataPath:= GetEnvironmentVariableUTF8('HOME') + '/.mybookshelf/';
-
- if not DirectoryExistsUTF8(DataPath) then
-    CreateDirUTF8(dataPath);
-
- dataPath:= dataPath + 'data.dat';
- {$ENDIF}
+  if not DirectoryExistsUTF8(dataDir) then CreateDirUTF8(dataDir);
+  dataPath := IncludeTrailingPathDelimiter(dataDir) + 'data.dat';
 
  BookList:=TBookCollection.Create;
 
