@@ -5,7 +5,9 @@ unit unitCoverWorker;
 interface
 
 uses
-  Classes, SysUtils, Process, LCLIntf, Book, BookCollection, FileUtil;
+  Classes, SysUtils, Process, LCLIntf, Graphics, Math, LazJpeg,
+  IntfGraphics, FPImage, LazCanvas,
+  Book, BookCollection, FileUtil;
 
 { Call this once after loading your data: it scans the list and enqueues
   only the PDFs that still use the generic cover (i.e. ImagePath=''). }
@@ -48,14 +50,22 @@ begin
   Result := (Trim(B.ImagePath) = '');
 end;
 
-function GeneratePdfCover(const PdfPath: String): String;
+function GeneratePdfCover(const PdfPath: String; W, H: Integer): String;
 var
   OutBase, Converter: String;
   Proc: TProcess;
+  Pic: TPicture;
+  Img: TLazIntfImage;
+  Canvas: TLazCanvas;
+  Png: TPortableNetworkGraphic;
+  scale: Double;
+  dstW, dstH, offX, offY: Integer;
 begin
   Result := '';
 
-  // If a sibling JPG already exists, just return it
+  // If a sibling PNG or JPG already exists, just return it
+  if FileExists(ChangeFileExt(PdfPath, '.png')) then
+    Exit(ChangeFileExt(PdfPath, '.png'));
   if FileExists(ChangeFileExt(PdfPath, '.jpg')) then
     Exit(ChangeFileExt(PdfPath, '.jpg'));
 
@@ -68,8 +78,8 @@ begin
   Proc := TProcess.Create(nil);
   try
     Proc.Executable := Converter;
-    // pdftoppm -jpeg -singlefile -f 1 -l 1 <pdf> <out_base>
-    Proc.Parameters.Add('-jpeg');
+    // pdftoppm -png -singlefile -f 1 -l 1 <pdf> <out_base>
+    Proc.Parameters.Add('-png');
     Proc.Parameters.Add('-singlefile');
     Proc.Parameters.Add('-f'); Proc.Parameters.Add('1');
     Proc.Parameters.Add('-l'); Proc.Parameters.Add('1');
@@ -82,8 +92,39 @@ begin
     Proc.Free;
   end;
 
-  if FileExists(OutBase + '.jpg') then
-    Result := OutBase + '.jpg';
+  if FileExists(OutBase + '.png') then
+  begin
+    Result := OutBase + '.png';
+    // Scale down to requested cover size
+    if (W > 0) and (H > 0) then
+    begin
+      Pic := TPicture.Create;
+      Img := TLazIntfImage.Create(W, H);
+      Canvas := TLazCanvas.Create(Img);
+      Png := TPortableNetworkGraphic.Create;
+      try
+        Pic.LoadFromFile(Result);
+        Img.FillPixels(colTransparent);
+        if (Pic.Width > 0) and (Pic.Height > 0) then
+        begin
+          scale := Min(W / Pic.Width, H / Pic.Height);
+          if scale > 1 then scale := 1;
+          dstW := Round(Pic.Width * scale);
+          dstH := Round(Pic.Height * scale);
+          offX := (W - dstW) div 2;
+          offY := (H - dstH) div 2;
+          Canvas.StretchDraw(Rect(offX, offY, offX + dstW, offY + dstH), Pic.Graphic);
+        end;
+        Png.Assign(Img);
+        Png.SaveToFile(Result);
+      finally
+        Png.Free;
+        Canvas.Free;
+        Img.Free;
+        Pic.Free;
+      end;
+    end;
+  end;
 end;
 
 procedure EnsureQueue;
@@ -187,7 +228,7 @@ begin
     end;
 
     // Generate cover (background thread)
-    Img := GeneratePdfCover(B.FilePath);
+    Img := GeneratePdfCover(B.FilePath, B.Cover.Width, B.Cover.Height);
 
     if (Img <> '') and FileExists(Img) then
     begin
