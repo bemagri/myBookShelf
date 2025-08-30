@@ -202,7 +202,7 @@ begin
         Pic.LoadFromFile(AValue);
 
         Img.FillPixels(colTransparent);
-
+        
         if (Pic.Width > 0) and (Pic.Height > 0) then
         begin
           scale := Min(W / Pic.Width, H / Pic.Height);
