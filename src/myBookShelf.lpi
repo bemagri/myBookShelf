@@ -117,10 +117,13 @@ in an easy way."/>
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="1">
+    <RequiredPackages Count="2">
       <Item1>
         <PackageName Value="LCL"/>
       </Item1>
+      <Item2>
+        <PackageName Value="ImagesForLazarus"/>
+      </Item2>
     </RequiredPackages>
     <Units Count="6">
       <Unit0>
