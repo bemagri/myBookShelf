@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Process, LCLIntf, Graphics, Math, LazJpeg,
-  IntfGraphics, FPImage, LazCanvas,
+  IntfGraphics, FPImage, GraphType, LazCanvas,
   Book, BookCollection, FileUtil;
 
 { Call this once after loading your data: it scans the list and enqueues
@@ -116,7 +116,7 @@ begin
           dstH := Round(Pic.Height * scale);
           offX := (W - dstW) div 2;
           offY := (H - dstH) div 2;
-          Canvas.StretchDraw(Rect(offX, offY, offX + dstW, offY + dstH), Pic.Graphic);
+          Canvas.StretchDraw(offX, offY, dstW, dstH, Pic.Graphic);
         end;
         Png.Assign(Img);
         Png.SaveToFile(Result);

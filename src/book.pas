@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Graphics, ExtCtrls, Controls, LCLIntf, LResources, Process,
-  Math, IntfGraphics, FPImage, LazCanvas, FileUtil, LazJPG;
+  Math, IntfGraphics, FPImage, GraphType, LazCanvas, FileUtil, LazJPG;
 
 
 type
@@ -124,7 +124,7 @@ begin
           dstH := Round(Pic.Height * scale);
           offX := (W - dstW) div 2;
           offY := (H - dstH) div 2;
-          Canvas.StretchDraw(Rect(offX, offY, offX + dstW, offY + dstH), Pic.Graphic);
+          Canvas.StretchDraw(offX, offY, dstW, dstH, Pic.Graphic);
         end;
         Png.Assign(Img);
         Png.SaveToFile(Result);
@@ -211,7 +211,7 @@ begin
           dstH := Round(Pic.Height * scale);
           offX := (W - dstW) div 2;
           offY := (H - dstH) div 2;
-          Canvas.StretchDraw(Rect(offX, offY, offX + dstW, offY + dstH), Pic.Graphic);
+          Canvas.StretchDraw(offX, offY, dstW, dstH, Pic.Graphic);
         end;
 
         // No runtime scaling anymore; we drew at target size
