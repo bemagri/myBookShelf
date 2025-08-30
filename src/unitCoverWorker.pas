@@ -20,6 +20,9 @@ procedure CoverWorkerEnqueueBookIfMissing(B: TBook);
   queue is empty. Call again later to restart if you enqueue more books. }
 procedure CoverWorkerStart;
 
+{ Stops the background worker and clears any pending books }
+procedure CoverWorkerStop;
+
 implementation
 
 type
@@ -176,6 +179,28 @@ begin
     GWorker := TCoverWorker.Create(True);
     GWorker.FreeOnTerminate := True;
     GWorker.Start;
+  end;
+end;
+
+{ Stops the worker and clears any queued books }
+procedure CoverWorkerStop;
+var
+  l: TList;
+begin
+  if GWorker <> nil then
+  begin
+    GWorker.Terminate;
+    GWorker.WaitFor;
+    GWorker := nil;
+  end;
+  if GPdfQueue <> nil then
+  begin
+    l := GPdfQueue.LockList;
+    try
+      l.Clear;
+    finally
+      GPdfQueue.UnlockList;
+    end;
   end;
 end;
 
