@@ -14,11 +14,18 @@ type
     lblDataDir: TLabel;
     edtDataDir: TEdit;
     btnBrowse: TButton;
+    lblBooksDir: TLabel;
+    edtBooksDir: TEdit;
+    btnBrowseBooks: TButton;
+    chkCopyBooks: TCheckBox;
+    chkRenameBooks: TCheckBox;
+    chkMeta: TCheckBox;
     chkPdfCovers: TCheckBox;
     btnOK: TBitBtn;
     btnCancel: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure BtnBrowseClick(Sender: TObject);
+    procedure BtnBrowseBooksClick(Sender: TObject);
     procedure BtnOKClick(Sender: TObject);
     function  ConfigDir: String;
     function  ConfigPath: String;
@@ -46,10 +53,10 @@ begin
   Caption := 'Settings';
   BorderStyle := bsDialog;
   Position := poScreenCenter;
-  ClientWidth := 520; ClientHeight := 180;
+  ClientWidth := 520; ClientHeight := 300;
 
   lblDataDir := TLabel.Create(Self); lblDataDir.Parent := Self;
-  lblDataDir.Caption := 'Data folder (where data.dat is saved):';
+  lblDataDir.Caption := 'Data folder (where books.xml is saved):';
   lblDataDir.Left := 16; lblDataDir.Top := 16;
 
   edtDataDir := TEdit.Create(Self); edtDataDir.Parent := Self;
@@ -59,16 +66,39 @@ begin
   btnBrowse.Left := 436; btnBrowse.Top := 38; btnBrowse.Caption := 'Browse...';
   btnBrowse.OnClick := @BtnBrowseClick;
 
+  lblBooksDir := TLabel.Create(Self); lblBooksDir.Parent := Self;
+  lblBooksDir.Caption := 'Managed books folder:';
+  lblBooksDir.Left := 16; lblBooksDir.Top := 80;
+
+  edtBooksDir := TEdit.Create(Self); edtBooksDir.Parent := Self;
+  edtBooksDir.Left := 16; edtBooksDir.Top := 104; edtBooksDir.Width := 410;
+
+  btnBrowseBooks := TButton.Create(Self); btnBrowseBooks.Parent := Self;
+  btnBrowseBooks.Left := 436; btnBrowseBooks.Top := 102; btnBrowseBooks.Caption := 'Browse...';
+  btnBrowseBooks.OnClick := @BtnBrowseBooksClick;
+
+  chkCopyBooks := TCheckBox.Create(Self); chkCopyBooks.Parent := Self;
+  chkCopyBooks.Caption := 'Copy books to managed folder on import';
+  chkCopyBooks.Left := 16; chkCopyBooks.Top := 144;
+
+  chkRenameBooks := TCheckBox.Create(Self); chkRenameBooks.Parent := Self;
+  chkRenameBooks.Caption := 'Rename books based on metadata';
+  chkRenameBooks.Left := 16; chkRenameBooks.Top := 168;
+
+  chkMeta := TCheckBox.Create(Self); chkMeta.Parent := Self;
+  chkMeta.Caption := 'Extract metadata from book files';
+  chkMeta.Left := 16; chkMeta.Top := 192;
+
   chkPdfCovers := TCheckBox.Create(Self); chkPdfCovers.Parent := Self;
   chkPdfCovers.Caption := 'Auto-extract PDF cover on import (requires pdftoppm)';
-  chkPdfCovers.Left := 16; chkPdfCovers.Top := 80;
+  chkPdfCovers.Left := 16; chkPdfCovers.Top := 216;
 
   btnOK := TBitBtn.Create(Self); btnOK.Parent := Self;
-  btnOK.Kind := bkOK; btnOK.Left := ClientWidth - 180; btnOK.Top := 130;
+  btnOK.Kind := bkOK; btnOK.Left := ClientWidth - 180; btnOK.Top := 248;
   btnOK.OnClick := @BtnOKClick;
 
   btnCancel := TBitBtn.Create(Self); btnCancel.Parent := Self;
-  btnCancel.Kind := bkCancel; btnCancel.Left := ClientWidth - 92; btnCancel.Top := 130;
+  btnCancel.Kind := bkCancel; btnCancel.Left := ClientWidth - 92; btnCancel.Top := 248;
 
   LoadSettings;
 end;
@@ -81,6 +111,14 @@ begin
     edtDataDir.Text := dir;
 end;
 
+procedure TSettingsDialog.BtnBrowseBooksClick(Sender: TObject);
+var dir: String;
+begin
+  dir := edtBooksDir.Text;
+  if SelectDirectory('Choose books folder', '', dir) then
+    edtBooksDir.Text := dir;
+end;
+
 procedure TSettingsDialog.BtnOKClick(Sender: TObject);
 begin
   SaveSettings;
@@ -89,12 +127,7 @@ end;
 
 function TSettingsDialog.ConfigDir: String;
 begin
-  {$IFDEF MSWINDOWS}
-  Result := GetEnvironmentVariable('APPDATA') + DirectorySeparator + 'mybookshelf' + DirectorySeparator;
-  {$ENDIF}
-  {$IFDEF UNIX}
-  Result := GetEnvironmentVariable('HOME') + DirectorySeparator + '.mybookshelf' + DirectorySeparator;
-  {$ENDIF}
+  Result := IncludeTrailingPathDelimiter(GetAppConfigDirUTF8(False));
   if not DirectoryExistsUTF8(Result) then CreateDirUTF8(Result);
 end;
 
@@ -109,6 +142,10 @@ begin
   ini := TIniFile.Create(ConfigPath);
   try
     edtDataDir.Text := ini.ReadString('general', 'data_dir', '');
+    edtBooksDir.Text := ini.ReadString('general', 'books_dir', edtDataDir.Text);
+    chkCopyBooks.Checked := ini.ReadBool('general', 'copy_books', True);
+    chkRenameBooks.Checked := ini.ReadBool('general', 'rename_books', True);
+    chkMeta.Checked := ini.ReadBool('general', 'extract_metadata', True);
     chkPdfCovers.Checked := ini.ReadBool('general', 'auto_pdf_cover', True);
   finally
     ini.Free;
@@ -121,6 +158,10 @@ begin
   ini := TIniFile.Create(ConfigPath);
   try
     ini.WriteString('general', 'data_dir', edtDataDir.Text);
+    ini.WriteString('general', 'books_dir', edtBooksDir.Text);
+    ini.WriteBool('general', 'copy_books', chkCopyBooks.Checked);
+    ini.WriteBool('general', 'rename_books', chkRenameBooks.Checked);
+    ini.WriteBool('general', 'extract_metadata', chkMeta.Checked);
     ini.WriteBool('general', 'auto_pdf_cover', chkPdfCovers.Checked);
   finally
     ini.Free;

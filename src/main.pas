@@ -7,7 +7,7 @@ interface
 uses
   Classes, Sysutils, Fileutil, Forms, Controls, Graphics, Dialogs, ExtCtrls, LazFileUtils,
   Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType, IniFiles, unitSettingsDialog,
-  unitCoverWorker, unitStorageXML;
+  unitCoverWorker, unitStorageXML, unitMetadata;
 
 
 type
@@ -56,8 +56,10 @@ var
   BookList:TBookCollection;
   Xspace, Yspace:integer;
   dataPath:String;
+  booksDir:String;
   background,toolbar:TPicture;
   bookWidth,bookHeight:Integer;
+  optCopyBooks,optRenameBooks,optExtractMeta:Boolean;
 
 
 
@@ -302,21 +304,63 @@ procedure Tform1.ButtonAddClick(Sender: TObject);
 var
   book:TBook;
   i:Integer;
+  src,dest,fname,title,authors,ext:String;
+
+  function CleanName(const s:String):String;
+  const bad = '/\?*:<>|"';
+  var c:Char;
+  begin
+    Result := Trim(s);
+    for c in bad do
+      Result := StringReplace(Result, c, '_', [rfReplaceAll]);
+  end;
 begin
 
 if OpenDialog1.Execute then
 begin
   for i:= 0 to Opendialog1.Files.Count-1 do
   begin
-  book:=TBook.Create(PanelBackground);
-  book.FilePath:= OpenDialog1.Files.Strings[i];
-  BookList.AddBook(book);
-  book.Cover.Width:=bookWidth;
-  book.Cover.Height:=bookHeight;
-  book.Cover.Parent:=PanelBackground;
-   
+    src := OpenDialog1.Files.Strings[i];
+    dest := src;
+    title := '';
+    authors := '';
+    if optExtractMeta then
+      ExtractBookMetadata(src, title, authors);
+
+    if optCopyBooks then
+    begin
+      ForceDirectories(booksDir);
+      fname := ExtractFileName(src);
+      if optRenameBooks and (title <> '') then
+      begin
+        ext := ExtractFileExt(src);
+        fname := CleanName(title);
+        if authors <> '' then
+          fname := fname + ' - ' + CleanName(authors);
+        fname := fname + ext;
+      end;
+      dest := IncludeTrailingPathDelimiter(booksDir) + fname;
+      CopyFile(src, dest);
+    end;
+
+    book:=TBook.Create(PanelBackground);
+    book.FilePath:= dest;
+    if optExtractMeta then
+    begin
+      if title <> '' then book.Title := title
+      else book.Title := ChangeFileExt(ExtractFileName(dest), '');
+      if authors <> '' then book.Authors := authors;
+    end
+    else
+      book.Title := ChangeFileExt(ExtractFileName(dest), '');
+
+    BookList.AddBook(book);
+    book.Cover.Width:=bookWidth;
+    book.Cover.Height:=bookHeight;
+    book.Cover.Parent:=PanelBackground;
+    CoverWorkerEnqueueBookIfMissing(book);
+
   end;
-  CoverWorkerEnqueueBookIfMissing(Book);
   CoverWorkerStart;
   RearrangeBooksOnScreen();
 end;
@@ -372,10 +416,11 @@ end;
 End;
 
 procedure Tform1.Formcreate(Sender: Tobject);
-var 
+var
  i:integer;
  cfgDir, cfgPath, dataDir: String;
  ini: TIniFile;
+ autoPdfCover: Boolean;
 begin
  bookWidth:=130;
  bookHeight:=200;
@@ -409,33 +454,37 @@ begin
  ButtonAdd.Picture:=mAdd;
  ButtonSettings.Picture:=mGear;
 
- // Load config.ini if present to resolve dataPath and options
-  {$IFDEF MSWINDOWS}
-  cfgDir := GetEnvironmentVariable('APPDATA') + DirectorySeparator + 'mybookshelf' + DirectorySeparator;
-  {$ENDIF}
-  {$IFDEF UNIX}
-  cfgDir := GetEnvironmentVariable('HOME') + DirectorySeparator + '.mybookshelf' + DirectorySeparator;
-  {$ENDIF}
+ // Load config.ini if present to resolve paths and options
+  cfgDir := IncludeTrailingPathDelimiter(GetAppConfigDirUTF8(False));
   if not DirectoryExistsUTF8(cfgDir) then CreateDirUTF8(cfgDir);
 
   cfgPath := cfgDir + 'config.ini';
   ini := TIniFile.Create(cfgPath);
   try
-    dataDir := ini.ReadString('general', 'data_dir', cfgDir);
-    // You can also read autoPdfCover if you want it here:
-    // autoPdfCover := ini.ReadBool('general', 'auto_pdf_cover', True);
+    dataDir        := ini.ReadString('general', 'data_dir', cfgDir);
+    booksDir       := ini.ReadString('general', 'books_dir', cfgDir);
+    optCopyBooks   := ini.ReadBool('general', 'copy_books', True);
+    optRenameBooks := ini.ReadBool('general', 'rename_books', True);
+    optExtractMeta := ini.ReadBool('general', 'extract_metadata', True);
+    autoPdfCover   := ini.ReadBool('general','auto_pdf_cover', True);
   finally
     ini.Free;
   end;
 
   if not DirectoryExistsUTF8(dataDir) then CreateDirUTF8(dataDir);
+  if not DirectoryExistsUTF8(booksDir) then CreateDirUTF8(booksDir);
   dataPath := IncludeTrailingPathDelimiter(dataDir) + 'books.xml';
 
  BookList:=TBookCollection.Create;
 
- if FileExistsUTF8(dataPath) then
-    LoadBooksXML(dataPath, BookList, PanelBackground);
-
+  // speed up startup: we skipped synchronous PDF generation during load
+  SetPdfCoverGenerationEnabled(False);
+  try
+    if FileExistsUTF8(dataPath) then
+      LoadBooksXML(dataPath, BookList, PanelBackground);
+  finally
+    SetPdfCoverGenerationEnabled(autoPdfCover); // re-enable per settings
+  end;
 
  for i:=0 to BookList.Count-1 do
  begin
@@ -447,16 +496,6 @@ begin
     EnsureScaledToCoverSize;
   end;
  end;
-
- 
-  // speed up startup: we skipped synchronous PDF generation during LoadData
-  SetPdfCoverGenerationEnabled(False);
-  try
-    if FileExistsUTF8(dataPath) then
-      LoadBooksXML(dataPath, BookList, PanelBackground);
-  finally
-    SetPdfCoverGenerationEnabled(True); // re-enable for user actions
-  end;
 
  RearrangeBooksOnScreen();
 
