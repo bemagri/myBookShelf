@@ -302,9 +302,12 @@ End;
 
 procedure Tform1.ButtonAddClick(Sender: TObject);
 var
-  book:TBook;
-  i:Integer;
-  src,dest,fname,title,authors,ext:String;
+  book : TBook;
+  i    : Integer;
+  src  : String;
+  dest : String;
+  fname,title,authors,ext : String;
+  files: TStringList;
 
   function CleanName(const s:String):String;
   const bad = '/\?*:<>|"';
@@ -314,13 +317,10 @@ var
     for c in bad do
       Result := StringReplace(Result, c, '_', [rfReplaceAll]);
   end;
-begin
 
-if OpenDialog1.Execute then
-begin
-  for i:= 0 to Opendialog1.Files.Count-1 do
+  procedure ProcessFile(const AFile: String);
   begin
-    src := OpenDialog1.Files.Strings[i];
+    src := AFile;
     dest := src;
     title := '';
     authors := '';
@@ -368,11 +368,27 @@ begin
     book.Cover.Height:=bookHeight;
     book.Cover.Parent:=PanelBackground;
     CoverWorkerEnqueueBookIfMissing(book);
-
   end;
-  CoverWorkerStart;
-  RearrangeBooksOnScreen();
-end;
+
+begin
+  if OpenDialog1.Execute then
+  begin
+    files := TStringList.Create;
+    try
+      if OpenDialog1.Files.Count > 0 then
+        files.Assign(OpenDialog1.Files)
+      else if OpenDialog1.FileName <> '' then
+        files.Add(OpenDialog1.FileName);
+
+      for i := 0 to files.Count - 1 do
+        ProcessFile(files[i]);
+
+      CoverWorkerStart;
+      RearrangeBooksOnScreen();
+    finally
+      files.Free;
+    end;
+  end;
 End;
 
 procedure Tform1.ButtonAddMouseEnter(Sender: TObject);
