@@ -21,12 +21,12 @@ type
     Opendialog1: Topendialog;
     PanelBackground: Tscrollbox;
     procedure FormResize(Sender: TObject);
-    procedure Buttonaddclick(Sender: Tobject);
-    procedure Buttonaddmouseenter(Sender: Tobject);
-    procedure Buttonaddmouseleave(Sender: Tobject);
+    procedure ButtonAddClick(Sender: TObject);
+    procedure ButtonAddMouseEnter(Sender: TObject);
+    procedure ButtonAddMouseLeave(Sender: TObject);
     procedure ButtonSettingsClick(Sender: TObject);
-    procedure Buttonsettingsmouseenter(Sender: Tobject);
-    procedure Buttonsettingsmouseleave(Sender: Tobject);
+    procedure ButtonSettingsMouseEnter(Sender: TObject);
+    procedure ButtonSettingsMouseLeave(Sender: TObject);
     procedure Editsearchenter(Sender: Tobject);
     procedure Editsearchexit(Sender: Tobject);
     procedure Editsearchkeypress(Sender: Tobject; var Key: Char);
@@ -298,7 +298,7 @@ SaveBooksXML(dataPath, BookList);
 BookList.Destroy;
 End;
 
-procedure Tform1.Buttonaddclick(Sender: Tobject);
+procedure Tform1.ButtonAddClick(Sender: TObject);
 var
   book:TBook;
   i:Integer;
@@ -322,15 +322,15 @@ begin
 end;
 End;
 
-procedure Tform1.Buttonaddmouseenter(Sender: Tobject);
+procedure Tform1.ButtonAddMouseEnter(Sender: TObject);
 begin
-Buttonadd.Picture:=mAddHover;
-End;
+  ButtonAdd.Picture := mAddHover;
+end;
 
-procedure Tform1.Buttonaddmouseleave(Sender: Tobject);
+procedure Tform1.ButtonAddMouseLeave(Sender: TObject);
 begin
-Buttonadd.Picture:=mAdd;
-End;
+  ButtonAdd.Picture := mAdd;
+end;
 
 procedure Tform1.ButtonSettingsClick(Sender: TObject);
 begin
@@ -342,15 +342,15 @@ SettingsDialog := TSettingsDialog.Create(Self);
   end;
 end;
 
-procedure Tform1.Buttonsettingsmouseenter(Sender: Tobject);
+procedure Tform1.ButtonSettingsMouseEnter(Sender: TObject);
 begin
-ButtonSettings.Picture:=mGearHover;
-End;
+  ButtonSettings.Picture := mGearHover;
+end;
 
-procedure Tform1.Buttonsettingsmouseleave(Sender: Tobject);
+procedure Tform1.ButtonSettingsMouseLeave(Sender: TObject);
 begin
-ButtonSettings.Picture:=mGear;
-End;
+  ButtonSettings.Picture := mGear;
+end;
 
 procedure Tform1.Editsearchenter(Sender: Tobject);
 begin
