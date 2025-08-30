@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Graphics, ExtCtrls, Controls, LCLIntf, LResources, Process,
-  Math, IntfGraphics, FPImage, GraphType, LazCanvas, FileUtil, LazJPG;
+  Math, IntfGraphics, FPImage, FPReadPNG, FPReadJPEG, GraphType, LazCanvas,
+  FileUtil, LazJPG;
 
 
 type

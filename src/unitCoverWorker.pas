@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Process, LCLIntf, Graphics, Math, LazJpeg,
-  IntfGraphics, FPImage, GraphType, LazCanvas,
+  IntfGraphics, FPImage, FPReadPNG, FPReadJPEG, GraphType, LazCanvas,
   Book, BookCollection, FileUtil;
 
 { Call this once after loading your data: it scans the list and enqueues
