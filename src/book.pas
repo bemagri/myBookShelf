@@ -67,7 +67,7 @@ function TBook.TryGenerateCoverFromPDF(const PdfPath: String): String;
 var
   Proc: TProcess;
   OutBase, Converter: String;
-  Pic: TPicture;
+  SrcImg: TLazIntfImage;
   Img: TLazIntfImage;
   Canvas: TLazCanvas;
   Png: TPortableNetworkGraphic;
@@ -109,22 +109,22 @@ begin
     H := mCover.Height;
     if (W > 0) and (H > 0) then
     begin
-      Pic := TPicture.Create;
+      SrcImg := TLazIntfImage.Create(0, 0);
       Img := TLazIntfImage.Create(W, H);
       Canvas := TLazCanvas.Create(Img);
       Png := TPortableNetworkGraphic.Create;
       try
-        Pic.LoadFromFile(Result);
+        SrcImg.LoadFromFile(Result);
         Img.FillPixels(colTransparent);
-        if (Pic.Width > 0) and (Pic.Height > 0) then
+        if (SrcImg.Width > 0) and (SrcImg.Height > 0) then
         begin
-          scale := Min(W / Pic.Width, H / Pic.Height);
+          scale := Min(W / SrcImg.Width, H / SrcImg.Height);
           if scale > 1 then scale := 1;
-          dstW := Round(Pic.Width * scale);
-          dstH := Round(Pic.Height * scale);
+          dstW := Round(SrcImg.Width * scale);
+          dstH := Round(SrcImg.Height * scale);
           offX := (W - dstW) div 2;
           offY := (H - dstH) div 2;
-          Canvas.StretchDraw(offX, offY, dstW, dstH, Pic.Graphic);
+          Canvas.StretchDraw(offX, offY, dstW, dstH, SrcImg);
         end;
         Png.Assign(Img);
         Png.SaveToFile(Result);
@@ -132,7 +132,7 @@ begin
         Png.Free;
         Canvas.Free;
         Img.Free;
-        Pic.Free;
+        SrcImg.Free;
       end;
     end;
   end;
@@ -170,7 +170,7 @@ end;
 {------------------------------------------------------------------------------}
 procedure TBook.SetImage(AValue: String);
 var
-  Pic : TPicture;
+  SrcImg: TLazIntfImage;
   Img : TLazIntfImage;
   Canvas: TLazCanvas;
   Png : TPortableNetworkGraphic;
@@ -193,25 +193,25 @@ begin
 
   if (AValue <> '') and FileExists(AValue) then
   begin
-    Pic := TPicture.Create;
+    SrcImg := TLazIntfImage.Create(0, 0);
     Img := TLazIntfImage.Create(W, H);
     Canvas := TLazCanvas.Create(Img);
     Png := TPortableNetworkGraphic.Create;
     try
       try
-        Pic.LoadFromFile(AValue);
+        SrcImg.LoadFromFile(AValue);
 
         Img.FillPixels(colTransparent);
-        
-        if (Pic.Width > 0) and (Pic.Height > 0) then
+
+        if (SrcImg.Width > 0) and (SrcImg.Height > 0) then
         begin
-          scale := Min(W / Pic.Width, H / Pic.Height);
+          scale := Min(W / SrcImg.Width, H / SrcImg.Height);
           if scale > 1 then scale := 1; // avoid upscale
-          dstW := Round(Pic.Width * scale);
-          dstH := Round(Pic.Height * scale);
+          dstW := Round(SrcImg.Width * scale);
+          dstH := Round(SrcImg.Height * scale);
           offX := (W - dstW) div 2;
           offY := (H - dstH) div 2;
-          Canvas.StretchDraw(offX, offY, dstW, dstH, Pic.Graphic);
+          Canvas.StretchDraw(offX, offY, dstW, dstH, SrcImg);
         end;
 
         // No runtime scaling anymore; we drew at target size
@@ -231,7 +231,7 @@ begin
       Png.Free;
       Canvas.Free;
       Img.Free;
-      Pic.Free;
+      SrcImg.Free;
     end;
   end;
 
