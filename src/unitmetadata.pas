@@ -113,7 +113,11 @@ begin
     proc.Free;
   end;
   try
-    ReadXMLFile(xml, stream);
+    try
+      ReadXMLFile(xml, stream);
+    except
+      Exit(False);
+    end;
     try
       meta := xml.DocumentElement.FindNode('metadata');
       if meta <> nil then
