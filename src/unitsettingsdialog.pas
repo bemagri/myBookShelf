@@ -25,6 +25,7 @@ type
     procedure LoadSettings;
     procedure SaveSettings;
   public
+    constructor Create(AOwner: TComponent); override;
   end;
 
 var
@@ -33,6 +34,12 @@ var
 implementation
 
 {$R *.lfm}
+
+constructor TSettingsDialog.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FormCreate(Self);
+end;
 
 procedure TSettingsDialog.FormCreate(Sender: TObject);
 begin
