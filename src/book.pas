@@ -155,38 +155,41 @@ begin
     Pic := TPicture.Create;
     Bmp := TBitmap.Create;
     try
-      Pic.LoadFromFile(AValue);
+      try
+        Pic.LoadFromFile(AValue);
 
-      Bmp.SetSize(W, H);
-      // letterbox background
-      Bmp.Canvas.Brush.Color := clBtnFace;
-      Bmp.Canvas.FillRect(0, 0, W, H);
+        Bmp.SetSize(W, H);
+        // letterbox background
+        Bmp.Canvas.Brush.Color := clBtnFace;
+        Bmp.Canvas.FillRect(0, 0, W, H);
 
-      if (Pic.Width > 0) and (Pic.Height > 0) then
-      begin
-        scale := Min(W / Pic.Width, H / Pic.Height);
-        if scale > 1 then scale := 1; // avoid upscale
-        dstW := Round(Pic.Width * scale);
-        dstH := Round(Pic.Height * scale);
-        offX := (W - dstW) div 2;
-        offY := (H - dstH) div 2;
-        Bmp.Canvas.StretchDraw(Rect(offX, offY, offX + dstW, offY + dstH), Pic.Graphic);
+        if (Pic.Width > 0) and (Pic.Height > 0) then
+        begin
+          scale := Min(W / Pic.Width, H / Pic.Height);
+          if scale > 1 then scale := 1; // avoid upscale
+          dstW := Round(Pic.Width * scale);
+          dstH := Round(Pic.Height * scale);
+          offX := (W - dstW) div 2;
+          offY := (H - dstH) div 2;
+          Bmp.Canvas.StretchDraw(Rect(offX, offY, offX + dstW, offY + dstH), Pic.Graphic);
+        end;
+
+        // No runtime scaling anymore; we drew at target size
+        mCover.Stretch := False;
+        mCover.Center  := False;
+        mCover.AutoSize:= False;
+
+        mCover.Picture.Assign(Bmp);
+        mImagePath := AValue;
+        mScaledW := W; mScaledH := H;
+        Exit;
+      except
+        // fall through to generic on any failure
       end;
-
-      // No runtime scaling anymore; we drew at target size
-      mCover.Stretch := False;
-      mCover.Center  := False;
-      mCover.AutoSize:= False;
-
-      mCover.Picture.Assign(Bmp);
-      mImagePath := AValue;
-      mScaledW := W; mScaledH := H;
-      Exit;
-    except
-      // fall through to generic on any failure
+    finally
+      Pic.Free;
+      Bmp.Free;
     end;
-    Pic.Free;
-    Bmp.Free;
   end;
 
   // Generic fallback
