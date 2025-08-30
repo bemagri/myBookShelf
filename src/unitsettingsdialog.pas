@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Buttons, IniFiles;
+  StdCtrls, Buttons, IniFiles, LazFileUtils;
 
 type
   TSettingsDialog = class(TForm)
@@ -83,10 +83,10 @@ end;
 function TSettingsDialog.ConfigDir: String;
 begin
   {$IFDEF MSWINDOWS}
-  Result := GetEnvironmentVariableUTF8('APPDATA') + DirectorySeparator + 'mybookshelf' + DirectorySeparator;
+  Result := GetEnvironmentVariable('APPDATA') + DirectorySeparator + 'mybookshelf' + DirectorySeparator;
   {$ENDIF}
   {$IFDEF UNIX}
-  Result := GetEnvironmentVariableUTF8('HOME') + DirectorySeparator + '.mybookshelf' + DirectorySeparator;
+  Result := GetEnvironmentVariable('HOME') + DirectorySeparator + '.mybookshelf' + DirectorySeparator;
   {$ENDIF}
   if not DirectoryExistsUTF8(Result) then CreateDirUTF8(Result);
 end;

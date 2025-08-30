@@ -5,14 +5,14 @@ unit main;
 interface
 
 uses
-  Classes, Sysutils, Fileutil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType, IniFiles, unitSettingsDialog;
+  Classes, Sysutils, Fileutil, Forms, Controls, Graphics, Dialogs, ExtCtrls, LazFileUtils,
+  Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType, IniFiles, unitSettingsDialog,
+  unitCoverWorker, unitStorageXML;
 
 
 type
 
   { Tform1 }
-
   Tform1 = class(Tform)
     EditSearch: Tedit;
     ButtonSettings: Timage;
@@ -20,6 +20,7 @@ type
     ButtonAdd: Timage;
     Opendialog1: Topendialog;
     PanelBackground: Tscrollbox;
+    procedure FormResize(Sender: TObject);
     procedure Buttonaddclick(Sender: Tobject);
     procedure Buttonaddmouseenter(Sender: Tobject);
     procedure Buttonaddmouseleave(Sender: Tobject);
@@ -44,6 +45,8 @@ type
     function getCoverIndex(cover:TImage):Integer;
   private
     mAdd,mAddHover,mGear,mGearHover:TPicture;
+    LayoutTimer: TTimer;
+    procedure LayoutTimerTick(Sender: TObject);
   public
     { public declarations }
   end;
@@ -64,12 +67,25 @@ implementation
 
 { Tform1 }
 
+procedure TForm1.FormResize(Sender: TObject);
+begin
+  // debounce: restart the timer, don’t layout on every pixel move
+  LayoutTimer.Enabled := False;
+  LayoutTimer.Enabled := True;
+end;
+
+procedure TForm1.LayoutTimerTick(Sender: TObject);
+begin
+  LayoutTimer.Enabled := False;   // one-shot
+  RearrangeBooksOnScreen;
+end;
+
 procedure Tform1.Panelbackgroundclick(Sender: Tobject);
 begin
  ActiveControl:=PanelBackground;
 
  UnselectAll;
- PanelBackground.Repaint;
+ PanelBackground.Invalidate;
 End;
 
 procedure Tform1.Panelbackgrounddragdrop(Sender, Source: Tobject; X, Y: Integer);
@@ -79,7 +95,8 @@ begin
  dest:=getBookIndexAtPoint(X,Y);
    if (src > -1) and (dest > -1) then BookList.SwapBooks(src,dest);
    UnselectAll;
-   RearrangeBooksOnScreen();
+   PanelBackground.Invalidate;
+   //RearrangeBooksOnScreen();
 End;
 
 procedure Tform1.Panelbackgrounddragover(Sender, Source: Tobject; X,
@@ -113,37 +130,126 @@ begin
 
 End;
 
-procedure Tform1.Rearrangebooksonscreen;
-var i,x,y:Integer;
-begin
+procedure TForm1.RearrangeBooksOnScreen;
+var
+  visibleCovers: array of TImage;
+  i, j, k, countVisible: Integer;
+  availW, minGap, rowStart, rowCount: Integer;
+  curY: Integer;
+  x: Double;
+  gap: Double;
+  cover: TImage;
 
- x:=0;
- y:=0;
-
- for i:= 0 to BookList.Count-1 do
- begin
-    if X+Xspace > PanelBackground.Width-bookWidth then
-    begin
-      X:=0;
-      Y:=Y+Yspace+bookHeight+26;
-    end;
-    with BookList.Books[i] do
-    begin
-      Cover.Left:=X+Xspace;
-      Cover.Top:=Y+Yspace;
-      X:=X+Xspace+bookWidth;
-    end;
+  function PanelClientWidth: Integer;
+  begin
+    // Use client width (exclude borders/scrollbar)
+    Result := PanelBackground.ClientWidth;
+    if Result <= 0 then Result := PanelBackground.Width;
   end;
- PanelBackground.Repaint;
 
+  procedure CollectVisible;
+  var i : Integer;
+  begin
+    SetLength(visibleCovers, 0);
+    for i := 0 to BookList.Count - 1 do
+    begin
+      cover := BookList.Books[i].Cover;
+      if Assigned(cover) and cover.Visible then
+      begin
+        SetLength(visibleCovers, Length(visibleCovers) + 1);
+        visibleCovers[High(visibleCovers)] := cover;
+      end;
+    end;
+    countVisible := Length(visibleCovers);
+  end;
+
+  // Can we fit N items with at least minGap spacing including left+right margins?
+  function FitsWithMinGaps(n: Integer; width: Integer; gapPx: Integer): Boolean;
+  var need: Integer;
+  begin
+    // total = n*bookWidth + (n+1)*gap  (edge gaps included)
+    need := (n * bookWidth) + ((n + 1) * gapPx);
+    Result := need <= width;
+  end;
+
+begin
+  PanelBackground.DisableAlign;
+  try
+    availW := PanelClientWidth;
+    if availW <= 0 then Exit;
+
+    minGap := Xspace;     // your existing horizontal spacing as the minimum
+    curY   := Yspace;     // top margin
+    CollectVisible;
+
+    // Early exit: nothing to place
+    if countVisible = 0 then Exit;
+
+    // Ensure covers have correct size (in case they were recreated)
+    for i := 0 to countVisible - 1 do
+    begin
+      visibleCovers[i].Width  := bookWidth;
+      visibleCovers[i].Height := bookHeight;
+      visibleCovers[i].Parent := PanelBackground;
+    end;
+
+    rowStart := 0;
+    while rowStart < countVisible do
+    begin
+      // Determine how many items fit in this row with at least minGap gutters.
+      rowCount := 1;
+      while (rowStart + rowCount < countVisible)
+        and FitsWithMinGaps(rowCount + 1, availW, minGap) do
+        Inc(rowCount);
+
+      // Compute the gap for this row:
+      // - For full rows, distribute leftover width evenly across (rowCount+1) gaps.
+      // - For the last row (rowStart+rowCount = countVisible), keep it left-aligned (minGap).
+      if (rowStart + rowCount) < countVisible then
+      begin
+        // Full row → justified
+        gap := (availW - (rowCount * bookWidth)) / (rowCount + 1);
+        if gap < minGap then gap := minGap; // safety
+      end
+      else
+      begin
+        // Last row → left align
+        gap := minGap; // safety
+      end;
+
+      // Place row items: start at left edge gap, then [cover + gap] repeated.
+      x := gap;
+      for j := 0 to rowCount - 1 do
+      begin
+        k := rowStart + j;
+        cover := visibleCovers[k];
+        cover.Left := Round(x);
+        cover.Top  := curY;
+        x := x + bookWidth + gap;
+      end;
+
+      // Next row Y
+      curY := curY + bookHeight + Yspace + 26;
+      Inc(rowStart, rowCount);
+    end;
+
+    // Optional: ensure panel is tall enough; comment out if not needed.
+    // PanelBackground.AutoSize := False;
+    // PanelBackground.Height := curY + Yspace;
+  finally
+    PanelBackground.EnableAlign;
+    
+    PanelBackground.Invalidate;
+  end;
 end;
+
 
 procedure Tform1.Panelbackgroundresize(Sender: Tobject);
 begin
  RearrangeBooksOnScreen();
 
  EditSearch.Left:=Width-EditSearch.Width-20;
- End;
+End;
 
 function Tform1.Getbookindexatpoint(X, Y: Integer): Integer;
 var i:Integer;
@@ -152,8 +258,9 @@ begin
  for i:=0 to BookList.Count-1 do
  begin
    cover:=BookList.Books[i].Cover;
-   if (cover.Left > X) and (cover.Left - bookWidth < X) and (cover.Top <= Y) and (cover.Top + bookHeight > Y) then
-   begin
+    if (X >= cover.Left) and (X <= cover.Left + cover.Width) and
+      (Y >= cover.Top) and (Y <= cover.Top + cover.Height) then
+    begin
      result :=i;
      exit;
    end;
@@ -187,7 +294,7 @@ end;
 
 procedure Tform1.Formclose(Sender: Tobject; var Closeaction: Tcloseaction);
 begin
-BookList.StoreData(dataPath);
+SaveBooksXML(dataPath, BookList);
 BookList.Destroy;
 End;
 
@@ -207,7 +314,10 @@ begin
   book.Cover.Width:=bookWidth;
   book.Cover.Height:=bookHeight;
   book.Cover.Parent:=PanelBackground;
+   
   end;
+  CoverWorkerEnqueueBookIfMissing(Book);
+  CoverWorkerStart;
   RearrangeBooksOnScreen();
 end;
 End;
@@ -267,7 +377,7 @@ var
  cfgDir, cfgPath, dataDir: String;
  ini: TIniFile;
 begin
- bookWidth:=150;
+ bookWidth:=130;
  bookHeight:=200;
  Xspace:=40;
  Yspace:=25;
@@ -279,6 +389,15 @@ begin
  background:=TPicture.Create;
  background.LoadFromLazarusResource('shelf');
 
+ PanelBackground.DoubleBuffered := True; // reduce flicker
+
+ Self.OnResize := @FormResize;
+
+ LayoutTimer := TTimer.Create(Self);
+ LayoutTimer.Enabled  := False;
+ LayoutTimer.Interval := 60;            // ~60ms debounce feels snappy
+ LayoutTimer.OnTimer  := @LayoutTimerTick;
+ 
  mAdd:=TPicture.Create;
  mAddHover:=Tpicture.Create;
  mGear:=Tpicture.Create;
@@ -292,10 +411,10 @@ begin
 
  // Load config.ini if present to resolve dataPath and options
   {$IFDEF MSWINDOWS}
-  cfgDir := GetEnvironmentVariableUTF8('APPDATA') + DirectorySeparator + 'mybookshelf' + DirectorySeparator;
+  cfgDir := GetEnvironmentVariable('APPDATA') + DirectorySeparator + 'mybookshelf' + DirectorySeparator;
   {$ENDIF}
   {$IFDEF UNIX}
-  cfgDir := GetEnvironmentVariableUTF8('HOME') + DirectorySeparator + '.mybookshelf' + DirectorySeparator;
+  cfgDir := GetEnvironmentVariable('HOME') + DirectorySeparator + '.mybookshelf' + DirectorySeparator;
   {$ENDIF}
   if not DirectoryExistsUTF8(cfgDir) then CreateDirUTF8(cfgDir);
 
@@ -310,12 +429,12 @@ begin
   end;
 
   if not DirectoryExistsUTF8(dataDir) then CreateDirUTF8(dataDir);
-  dataPath := IncludeTrailingPathDelimiter(dataDir) + 'data.dat';
+  dataPath := IncludeTrailingPathDelimiter(dataDir) + 'books.xml';
 
  BookList:=TBookCollection.Create;
 
  if FileExistsUTF8(dataPath) then
-    BookList.LoadData(dataPath, PanelBackground);
+    LoadBooksXML(dataPath, BookList, PanelBackground);
 
 
  for i:=0 to BookList.Count-1 do
@@ -325,10 +444,25 @@ begin
     Cover.Width:=bookWidth;
     Cover.Height:=bookHeight;
     Cover.Parent:=PanelBackground;
+    EnsureScaledToCoverSize;
   end;
  end;
 
+ 
+  // speed up startup: we skipped synchronous PDF generation during LoadData
+  SetPdfCoverGenerationEnabled(False);
+  try
+    if FileExistsUTF8(dataPath) then
+      LoadBooksXML(dataPath, BookList, PanelBackground);
+  finally
+    SetPdfCoverGenerationEnabled(True); // re-enable for user actions
+  end;
+
  RearrangeBooksOnScreen();
+
+ // Background: generate covers only where still generic
+ CoverWorkerEnqueueMissingFromBookList(BookList);
+ CoverWorkerStart;
 
 End;
 
