@@ -35,7 +35,15 @@ implementation
 { TBookCollection }
 
 procedure TBookCollection.Clear;
+var
+  i : Integer;
+  book : TBook;
 begin
+  for i := mList.Count - 1 downto 0 do
+  begin
+    book := TBook(mList[i]);
+    book.Free;               // free cover controls and the book itself
+  end;
   mList.Clear;
 end;
 
