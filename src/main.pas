@@ -340,7 +340,16 @@ begin
         fname := fname + ext;
       end;
       dest := IncludeTrailingPathDelimiter(booksDir) + fname;
-      CopyFile(src, dest);
+      // Skip copy if source already resides in booksDir and avoid exceptions on failure
+      if CompareFilenames(src, dest) <> 0 then
+      begin
+        try
+          CopyFile(src, dest);
+        except
+          // fall back to original path if copy fails for any reason
+          dest := src;
+        end;
+      end;
     end;
 
     book:=TBook.Create(PanelBackground);
