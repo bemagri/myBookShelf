@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Graphics, ExtCtrls, Controls, LCLIntf, LResources, Process,
-  Math, FileUtil;
+  Math, LazJpeg, IntfGraphics, FPImage, LazCanvas, FileUtil;
 
 
 type
@@ -61,12 +61,18 @@ begin
 end;
 
 {------------------------------------------------------------------------------}
-{ Helper: try to render first page of a PDF into a JPEG using Poppler         }
+{ Helper: try to render first page of a PDF into a PNG using Poppler          }
 {------------------------------------------------------------------------------}
 function TBook.TryGenerateCoverFromPDF(const PdfPath: String): String;
 var
   Proc: TProcess;
   OutBase, Converter: String;
+  Pic: TPicture;
+  Img: TLazIntfImage;
+  Canvas: TLazCanvas;
+  Png: TPortableNetworkGraphic;
+  scale: Double;
+  dstW, dstH, offX, offY, W, H: Integer;
 begin
   Result := '';
   if not gPdfCoverEnabled then Exit;
@@ -81,8 +87,8 @@ begin
   Proc := TProcess.Create(nil);
   try
     Proc.Executable := Converter;
-    // pdftoppm -jpeg -singlefile -f 1 -l 1 <pdf> <out_base>
-    Proc.Parameters.Add('-jpeg');
+    // pdftoppm -png -singlefile -f 1 -l 1 <pdf> <out_base>
+    Proc.Parameters.Add('-png');
     Proc.Parameters.Add('-singlefile');
     Proc.Parameters.Add('-f'); Proc.Parameters.Add('1');
     Proc.Parameters.Add('-l'); Proc.Parameters.Add('1');
@@ -95,8 +101,41 @@ begin
     Proc.Free;
   end;
 
-  if FileExists(OutBase + '.jpg') then
-    Result := OutBase + '.jpg';
+  if FileExists(OutBase + '.png') then
+  begin
+    Result := OutBase + '.png';
+    // Scale down to current cover size
+    W := mCover.Width;
+    H := mCover.Height;
+    if (W > 0) and (H > 0) then
+    begin
+      Pic := TPicture.Create;
+      Img := TLazIntfImage.Create(W, H);
+      Canvas := TLazCanvas.Create(Img);
+      Png := TPortableNetworkGraphic.Create;
+      try
+        Pic.LoadFromFile(Result);
+        Img.FillPixels(colTransparent);
+        if (Pic.Width > 0) and (Pic.Height > 0) then
+        begin
+          scale := Min(W / Pic.Width, H / Pic.Height);
+          if scale > 1 then scale := 1;
+          dstW := Round(Pic.Width * scale);
+          dstH := Round(Pic.Height * scale);
+          offX := (W - dstW) div 2;
+          offY := (H - dstH) div 2;
+          Canvas.StretchDraw(Rect(offX, offY, offX + dstW, offY + dstH), Pic.Graphic);
+        end;
+        Png.Assign(Img);
+        Png.SaveToFile(Result);
+      finally
+        Png.Free;
+        Canvas.Free;
+        Img.Free;
+        Pic.Free;
+      end;
+    end;
+  end;
 end;
 
 {------------------------------------------------------------------------------}
@@ -132,7 +171,9 @@ end;
 procedure TBook.SetImage(AValue: String);
 var
   Pic : TPicture;
-  Bmp : TBitmap;
+  Img : TLazIntfImage;
+  Canvas: TLazCanvas;
+  Png : TPortableNetworkGraphic;
   dstW, dstH, offX, offY: Integer;
   scale: Double;
   W, H: Integer;
@@ -153,40 +194,45 @@ begin
   if (AValue <> '') and FileExists(AValue) then
   begin
     Pic := TPicture.Create;
-    Bmp := TBitmap.Create;
+    Img := TLazIntfImage.Create(W, H);
+    Canvas := TLazCanvas.Create(Img);
+    Png := TPortableNetworkGraphic.Create;
     try
-      Pic.LoadFromFile(AValue);
+      try
+        Pic.LoadFromFile(AValue);
 
-      Bmp.SetSize(W, H);
-      // letterbox background
-      Bmp.Canvas.Brush.Color := clBtnFace;
-      Bmp.Canvas.FillRect(0, 0, W, H);
+        Img.FillPixels(colTransparent);
 
-      if (Pic.Width > 0) and (Pic.Height > 0) then
-      begin
-        scale := Min(W / Pic.Width, H / Pic.Height);
-        if scale > 1 then scale := 1; // avoid upscale
-        dstW := Round(Pic.Width * scale);
-        dstH := Round(Pic.Height * scale);
-        offX := (W - dstW) div 2;
-        offY := (H - dstH) div 2;
-        Bmp.Canvas.StretchDraw(Rect(offX, offY, offX + dstW, offY + dstH), Pic.Graphic);
+        if (Pic.Width > 0) and (Pic.Height > 0) then
+        begin
+          scale := Min(W / Pic.Width, H / Pic.Height);
+          if scale > 1 then scale := 1; // avoid upscale
+          dstW := Round(Pic.Width * scale);
+          dstH := Round(Pic.Height * scale);
+          offX := (W - dstW) div 2;
+          offY := (H - dstH) div 2;
+          Canvas.StretchDraw(Rect(offX, offY, offX + dstW, offY + dstH), Pic.Graphic);
+        end;
+
+        // No runtime scaling anymore; we drew at target size
+        mCover.Stretch := False;
+        mCover.Center  := False;
+        mCover.AutoSize:= False;
+
+        Png.Assign(Img);
+        mCover.Picture.Assign(Png);
+        mImagePath := AValue;
+        mScaledW := W; mScaledH := H;
+        Exit;
+      except
+        // fall through to generic on any failure
       end;
-
-      // No runtime scaling anymore; we drew at target size
-      mCover.Stretch := False;
-      mCover.Center  := False;
-      mCover.AutoSize:= False;
-
-      mCover.Picture.Assign(Bmp);
-      mImagePath := AValue;
-      mScaledW := W; mScaledH := H;
-      Exit;
-    except
-      // fall through to generic on any failure
+    finally
+      Png.Free;
+      Canvas.Free;
+      Img.Free;
+      Pic.Free;
     end;
-    Pic.Free;
-    Bmp.Free;
   end;
 
   // Generic fallback
