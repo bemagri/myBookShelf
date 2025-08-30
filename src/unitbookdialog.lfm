@@ -7,7 +7,7 @@ object BookEditDialog: TBookEditDialog
   BorderStyle = bsDialog
   Caption = 'Edit Book Info'
   ClientHeight = 347
-  ClientWidth = 806
+  ClientWidth = 856
   FormStyle = fsStayOnTop
   OnCreate = FormCreate
   LCLVersion = '1.6.4.0'
@@ -31,7 +31,7 @@ object BookEditDialog: TBookEditDialog
     Left = 329
     Height = 29
     Top = 128
-    Width = 463
+    Width = 400
     TabOrder = 2
     Text = 'ISBN'
   end

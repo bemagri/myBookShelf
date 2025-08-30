@@ -23,6 +23,7 @@ TBookCollection = class(TObject)
     property  Books[Index: Integer]:TBook read Get;
     procedure Remove(book:TBook);
     function Count:Integer;
+    procedure Clear;
     procedure SwapBooks(Source,Dest:Integer);
     constructor Create;
     destructor Destroy; override;
@@ -32,6 +33,11 @@ end;
 implementation
 
 { TBookCollection }
+
+procedure TBookCollection.Clear;
+begin
+  mList.Clear;
+end;
 
 function Tbookcollection.Get(Index: Integer): Tbook;
 begin

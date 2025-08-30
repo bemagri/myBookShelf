@@ -2,22 +2,25 @@ program myBookShelf;
 
 {$mode objfpc}{$H+}
 
+// Enable pthread support on Unix before any other unit uses threads.
+{$IFDEF UNIX}{$DEFINE UseCThreads}{$ENDIF}
+
 uses
-  {$IFDEF UNIX}{$IFDEF UseCThreads}
-  Cthreads,
-  {$ENDIF}{$ENDIF}
-  Interfaces, // this includes the LCL widgetset
-  Forms, main, book, bookCollection, UnitBookDialog, unitSettingsDialog
-  { you can add units after this };
+  {$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}
+  Interfaces,           // LCL widgetset (gtk2/qt5 decided by your env/flags)
+  Forms,
+  main,                 // your main form unit (TForm1, Form1)
+  unitSettingsDialog,   // settings dialog unit
+  unitCoverWorker;      // background PDF cover worker
 
 {$R *.res}
 
 begin
-  Requirederivedformresource:=True;
+  RequireDerivedFormResource := True;
+  Application.Scaled := True;
   Application.Initialize;
-  Application.Createform(Tform1, Form1);
-  Application.Createform(Tbookeditdialog, Bookeditdialog);
-  Application.CreateForm(TSettingsDialog, SettingsDialog);
+  Application.CreateForm(TForm1, Form1);
   Application.Run;
 end.
-
