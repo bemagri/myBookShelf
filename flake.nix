@@ -41,7 +41,6 @@
           pkgs.gdb
           pkgs.pkg-config
           pkgs.gtk2
-          pkgs.libqt5pas
         ] ++ lib.optionals (fpcSrcOpt != null) [ fpcSrcOpt ];
 
         commonHook = ''
@@ -68,9 +67,6 @@
             done
           fi
 
-          # Help the linker find libQt5Pas for Qt builds
-          export FPCOPT="$FPCOPT -Fl${pkgs.libqt5pas}/lib"
-
           echo
           echo "myBookShelf dev shell"
           echo "  • Widgetset:      $LCLWidgetType"
@@ -87,17 +83,17 @@
             buildInputs = commonInputs;
             shellHook = ''
               # GTK2 runtime libs so the app runs *inside* the shell
-              export LD_LIBRARY_PATH="${gtkLibPath}:$LD_LIBRARY_PATH"
               export LD_LIBRARY_PATH="${gtkLibPath}:${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH"
 ${commonHook}
             '';
           };
 
           qt5 = pkgs.mkShell {
-            buildInputs = commonInputs ++ [ lazQt5 pkgs.qt5.qtbase pkgs.qt5.qttools ];
+            buildInputs = commonInputs ++ [ lazQt5 pkgs.qt5.qtbase pkgs.qt5.qttools pkgs.libqt5pas ];
             shellHook = ''
               export LCLWidgetType=qt5
               # Qt runtime libs + plugin search path
+              export FPCOPT="$FPCOPT -Fl${pkgs.libqt5pas}/lib"
               export LD_LIBRARY_PATH="${qtLibPath}:${pkgs.libqt5pas}/lib:${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH"
               export QT_PLUGIN_PATH="${qtPlugins}"
 
