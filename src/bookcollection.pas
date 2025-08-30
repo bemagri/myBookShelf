@@ -32,6 +32,9 @@ end;
 
 implementation
 
+uses
+  unitCoverWorker;
+
 { TBookCollection }
 
 procedure TBookCollection.Clear;
@@ -39,6 +42,7 @@ var
   i : Integer;
   book : TBook;
 begin
+  CoverWorkerStop;
   for i := mList.Count - 1 downto 0 do
   begin
     book := TBook(mList[i]);
@@ -81,6 +85,7 @@ destructor Tbookcollection.Destroy;
 var i:Integer;
     book:TBook;
 begin
+  CoverWorkerStop;
   for i:=0 to mList.Count-1 do
       begin
         book:= (TBook(mList.Items[i]));
