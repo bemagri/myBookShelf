@@ -24,6 +24,7 @@ var
   line: String;
   i: Integer;
   exe: String;
+  env: TStringList;
 begin
   Result := False;
   Title := '';
@@ -32,8 +33,14 @@ begin
   if exe = '' then exe := 'pdfinfo';
   proc := TProcess.Create(nil);
   sl := TStringList.Create;
+  env := TStringList.Create;
   try
     try
+      // Force English output regardless of user locale and preserve PATH
+      env.Add('LC_ALL=C');
+      env.Add('LANG=C');
+      env.Add('PATH=' + GetEnvironmentVariable('PATH'));
+      proc.Environment := env;
       proc.Executable := exe;
       proc.Parameters.Add(FileName);
       proc.Options := [poWaitOnExit, poUsePipes];
@@ -54,6 +61,7 @@ begin
     end;
   finally
     sl.Free;
+    env.Free;
     proc.Free;
   end;
 end;
@@ -68,6 +76,7 @@ var
   meta, node: TDOMNode;
   i: Integer;
   lname: String;
+  env: TStringList;
 begin
   Result := False;
   Title := '';
@@ -77,8 +86,12 @@ begin
   // list files
   proc := TProcess.Create(nil);
   sl := TStringList.Create;
+  env := TStringList.Create;
   try
     try
+      env.Add('LC_ALL=C'); env.Add('LANG=C');
+      env.Add('PATH=' + GetEnvironmentVariable('PATH'));
+      proc.Environment := env;
       proc.Executable := exe;
       proc.Parameters.Add('-Z1');
       proc.Parameters.Add(FileName);
@@ -101,6 +114,7 @@ begin
     end;
   finally
     sl.Free;
+    env.Free;
     proc.Free;
   end;
   if opfPath = '' then Exit;
@@ -109,6 +123,10 @@ begin
   stream := TStringStream.Create('');
   try
     try
+      env := TStringList.Create;
+      env.Add('LC_ALL=C'); env.Add('LANG=C');
+      env.Add('PATH=' + GetEnvironmentVariable('PATH'));
+      proc.Environment := env;
       proc.Executable := exe;
       proc.Parameters.Add('-p');
       proc.Parameters.Add(FileName);
@@ -122,6 +140,7 @@ begin
       stream.Size := 0;
     end;
   finally
+    if Assigned(env) then env.Free;
     proc.Free;
   end;
   try
