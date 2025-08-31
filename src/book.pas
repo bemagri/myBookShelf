@@ -82,8 +82,35 @@ end;
 { Mouse handlers (hook up in constructor)                                      }
 {------------------------------------------------------------------------------}
 procedure TBook.BookMouseDown({%H-}Sender: TObject; {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
+var
+  i: Integer;
+  ctrl: TControl;
+  otherBook: TBook;
 begin
-  // You likely toggle selection elsewhere; keep this stub or wire to a callback
+  // Exclusive select unless Ctrl is held; toggle in Ctrl mode
+  if (mCover.Parent <> nil) and not (ssCtrl in Shift) then
+  begin
+    for i := 0 to mCover.Parent.ControlCount - 1 do
+    begin
+      ctrl := mCover.Parent.Controls[i];
+      if (ctrl is TImage) and (TImage(ctrl).Tag <> 0) then
+      begin
+        otherBook := TBook(Pointer(TImage(ctrl).Tag));
+        if Assigned(otherBook) then
+        begin
+          otherBook.mIsSelected := False;
+          TImage(ctrl).Invalidate;
+        end;
+      end;
+    end;
+  end;
+
+  if (ssCtrl in Shift) then
+    mIsSelected := not mIsSelected
+  else
+    mIsSelected := True;
+
+  mCover.Invalidate;
 end;
 
 procedure TBook.BookDoubleClick({%H-}Sender: TObject);
@@ -219,6 +246,8 @@ begin
   mCover.OnMouseDown := @BookMouseDown;
   mCover.OnDblClick  := @BookDoubleClick;
   mCover.Cursor    := crHandPoint;
+  // Back-reference for selection management among sibling controls
+  mCover.Tag       := PtrInt(Self);
 
   // default image
   mCover.Picture.LoadFromLazarusResource('generic_cover');
