@@ -26,7 +26,6 @@ type
 
     procedure SetFile(AValue: String);
     procedure SetImage(AValue: String);
-    function  TryGenerateCoverFromPDF(const PdfPath: String): String;
 
   public
     constructor Create(Parent: TComponent);
@@ -64,80 +63,6 @@ end;
 {------------------------------------------------------------------------------}
 { Helper: try to render first page of a PDF into a PNG using Poppler          }
 {------------------------------------------------------------------------------}
-function TBook.TryGenerateCoverFromPDF(const PdfPath: String): String;
-var
-  Proc: TProcess;
-  OutBase, Converter: String;
-  SrcImg: TLazIntfImage;
-  Img: TLazIntfImage;
-  Canvas: TLazCanvas;
-  Png: TPortableNetworkGraphic;
-  scale: Double;
-  dstW, dstH, offX, offY, W, H: Integer;
-begin
-  Result := '';
-  if not gPdfCoverEnabled then Exit;
-
-  // look for pdftoppm in PATH (Poppler utilities)
-  Converter := FindDefaultExecutablePath('pdftoppm');
-  if Converter = '' then
-    Exit; // tool not available, keep default behavior
-
-  OutBase := ChangeFileExt(PdfPath, '');  // e.g., /path/book.pdf -> /path/book
-
-  Proc := TProcess.Create(nil);
-  try
-    Proc.Executable := Converter;
-    // pdftoppm -png -singlefile -f 1 -l 1 <pdf> <out_base>
-    Proc.Parameters.Add('-png');
-    Proc.Parameters.Add('-singlefile');
-    Proc.Parameters.Add('-f'); Proc.Parameters.Add('1');
-    Proc.Parameters.Add('-l'); Proc.Parameters.Add('1');
-    Proc.Parameters.Add(PdfPath);
-    Proc.Parameters.Add(OutBase);
-    Proc.Options := [poWaitOnExit];
-    Proc.ShowWindow := swoHIDE;
-    Proc.Execute;
-  finally
-    Proc.Free;
-  end;
-
-  if FileExists(OutBase + '.png') then
-  begin
-    Result := OutBase + '.png';
-    // Scale down to current cover size
-    W := mCover.Width;
-    H := mCover.Height;
-    if (W > 0) and (H > 0) then
-    begin
-      SrcImg := TLazIntfImage.Create(0, 0);
-      Img := TLazIntfImage.Create(W, H);
-      Canvas := TLazCanvas.Create(Img);
-      Png := TPortableNetworkGraphic.Create;
-      try
-        SrcImg.LoadFromFile(Result);
-        Img.FillPixels(colTransparent);
-        if (SrcImg.Width > 0) and (SrcImg.Height > 0) then
-        begin
-          scale := Min(W / SrcImg.Width, H / SrcImg.Height);
-          if scale > 1 then scale := 1;
-          dstW := Round(SrcImg.Width * scale);
-          dstH := Round(SrcImg.Height * scale);
-          offX := (W - dstW) div 2;
-          offY := (H - dstH) div 2;
-          Canvas.StretchDraw(offX, offY, dstW, dstH, SrcImg);
-        end;
-        Png.Assign(Img);
-        Png.SaveToFile(Result);
-      finally
-        Png.Free;
-        Canvas.Free;
-        Img.Free;
-        SrcImg.Free;
-      end;
-    end;
-  end;
-end;
 
 {------------------------------------------------------------------------------}
 { Basic painting: selection outline                                            }
@@ -254,8 +179,6 @@ end;
 { File setter: try sibling .png/.jpg, then PDF first-page render if needed     }
 {------------------------------------------------------------------------------}
 procedure TBook.SetFile(AValue: String);
-var
-  ext, gen: String;
 begin
   if mFilePath = AValue then Exit;
   mFilePath := AValue;
@@ -264,15 +187,7 @@ begin
   SetImage(ChangeFileExt(AValue, '.png'));
   if mImagePath = '' then
     SetImage(ChangeFileExt(AValue, '.jpg'));
-
-  // if still no image and it's a PDF, try to generate one
-  ext := LowerCase(ExtractFileExt(AValue));
-  if (mImagePath = '') and (ext = '.pdf') then
-  begin
-    gen := TryGenerateCoverFromPDF(AValue);
-    if gen <> '' then
-      SetImage(gen);
-  end;
+  // leave PDF covers to the background worker; keep generic cover if none found
 end;
 
 {------------------------------------------------------------------------------}
