@@ -174,10 +174,16 @@ end;
 procedure CoverWorkerStart;
 begin
   EnsureQueue;
-  if (GWorker = nil) or (GWorker.Finished) then
+  // If a previous worker finished, free it before creating a new one
+  if Assigned(GWorker) and GWorker.Finished then
+  begin
+    GWorker.Free;
+    GWorker := nil;
+  end;
+  if (GWorker = nil) then
   begin
     GWorker := TCoverWorker.Create(True);
-    GWorker.FreeOnTerminate := True;
+    GWorker.FreeOnTerminate := False; // we manage lifecycle explicitly
     GWorker.Start;
   end;
 end;
@@ -196,7 +202,7 @@ begin
       Classes.CheckSynchronize(10);
       Sleep(5);
     end;
-    GWorker := nil;
+    FreeAndNil(GWorker);
   end;
   if GPdfQueue <> nil then
   begin

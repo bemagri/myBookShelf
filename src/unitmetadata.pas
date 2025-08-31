@@ -29,25 +29,29 @@ begin
   Title := '';
   Authors := '';
   exe := FindDefaultExecutablePath('pdfinfo');
-  if exe = '' then Exit;
+  if exe = '' then exe := 'pdfinfo';
   proc := TProcess.Create(nil);
   sl := TStringList.Create;
   try
-    proc.Executable := exe;
-    proc.Parameters.Add(FileName);
-    proc.Options := [poWaitOnExit, poUsePipes];
-    proc.ShowWindow := swoHide;
-    proc.Execute;
-    sl.LoadFromStream(proc.Output);
-    for i := 0 to sl.Count - 1 do
-    begin
-      line := sl[i];
-      if (Title = '') and AnsiStartsStr('Title:', line) then
-        Title := Trim(Copy(line, 7, MaxInt));
-      if (Authors = '') and (AnsiStartsStr('Author:', line) or AnsiStartsStr('Authors:', line)) then
-        Authors := Trim(Copy(line, Pos(':', line) + 1, MaxInt));
+    try
+      proc.Executable := exe;
+      proc.Parameters.Add(FileName);
+      proc.Options := [poWaitOnExit, poUsePipes];
+      proc.ShowWindow := swoHide;
+      proc.Execute;
+      sl.LoadFromStream(proc.Output);
+      for i := 0 to sl.Count - 1 do
+      begin
+        line := sl[i];
+        if (Title = '') and AnsiStartsStr('Title:', line) then
+          Title := Trim(Copy(line, 7, MaxInt));
+        if (Authors = '') and (AnsiStartsStr('Author:', line) or AnsiStartsStr('Authors:', line)) then
+          Authors := Trim(Copy(line, Pos(':', line) + 1, MaxInt));
+      end;
+      Result := (Title <> '') or (Authors <> '');
+    except
+      Result := False;
     end;
-    Result := (Title <> '') or (Authors <> '');
   finally
     sl.Free;
     proc.Free;
@@ -69,27 +73,31 @@ begin
   Title := '';
   Authors := '';
   exe := FindDefaultExecutablePath('unzip');
-  if exe = '' then Exit;
+  if exe = '' then exe := 'unzip';
   // list files
   proc := TProcess.Create(nil);
   sl := TStringList.Create;
   try
-    proc.Executable := exe;
-    proc.Parameters.Add('-Z1');
-    proc.Parameters.Add(FileName);
-    proc.Options := [poWaitOnExit, poUsePipes];
-    proc.ShowWindow := swoHide;
-    proc.Execute;
-    sl.LoadFromStream(proc.Output);
-    opfPath := '';
-    for i := 0 to sl.Count - 1 do
-    begin
-      line := Trim(sl[i]);
-      if LowerCase(ExtractFileExt(line)) = '.opf' then
+    try
+      proc.Executable := exe;
+      proc.Parameters.Add('-Z1');
+      proc.Parameters.Add(FileName);
+      proc.Options := [poWaitOnExit, poUsePipes];
+      proc.ShowWindow := swoHide;
+      proc.Execute;
+      sl.LoadFromStream(proc.Output);
+      opfPath := '';
+      for i := 0 to sl.Count - 1 do
       begin
-        opfPath := line;
-        Break;
+        line := Trim(sl[i]);
+        if LowerCase(ExtractFileExt(line)) = '.opf' then
+        begin
+          opfPath := line;
+          Break;
+        end;
       end;
+    except
+      opfPath := '';
     end;
   finally
     sl.Free;
@@ -100,15 +108,19 @@ begin
   proc := TProcess.Create(nil);
   stream := TStringStream.Create('');
   try
-    proc.Executable := exe;
-    proc.Parameters.Add('-p');
-    proc.Parameters.Add(FileName);
-    proc.Parameters.Add(opfPath);
-    proc.Options := [poWaitOnExit, poUsePipes];
-    proc.ShowWindow := swoHide;
-    proc.Execute;
-    stream.CopyFrom(proc.Output, 0);
-    stream.Position := 0;
+    try
+      proc.Executable := exe;
+      proc.Parameters.Add('-p');
+      proc.Parameters.Add(FileName);
+      proc.Parameters.Add(opfPath);
+      proc.Options := [poWaitOnExit, poUsePipes];
+      proc.ShowWindow := swoHide;
+      proc.Execute;
+      stream.CopyFrom(proc.Output, 0);
+      stream.Position := 0;
+    except
+      stream.Size := 0;
+    end;
   finally
     proc.Free;
   end;
