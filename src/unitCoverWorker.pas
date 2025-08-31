@@ -72,25 +72,29 @@ begin
   if FileExists(ChangeFileExt(PdfPath, '.jpg')) then
     Exit(ChangeFileExt(PdfPath, '.jpg'));
 
-  // look for pdftoppm in PATH (Poppler utilities)
+  // look for pdftoppm in PATH (Poppler utilities); fall back to bare name
   Converter := FindDefaultExecutablePath('pdftoppm');
-  if Converter = '' then Exit; // poppler not installed
+  if Converter = '' then Converter := 'pdftoppm';
 
   OutBase := ChangeFileExt(PdfPath, ''); // /path/book.pdf -> /path/book
 
   Proc := TProcess.Create(nil);
   try
-    Proc.Executable := Converter;
-    // pdftoppm -png -singlefile -f 1 -l 1 <pdf> <out_base>
-    Proc.Parameters.Add('-png');
-    Proc.Parameters.Add('-singlefile');
-    Proc.Parameters.Add('-f'); Proc.Parameters.Add('1');
-    Proc.Parameters.Add('-l'); Proc.Parameters.Add('1');
-    Proc.Parameters.Add(PdfPath);
-    Proc.Parameters.Add(OutBase);
-    Proc.Options := [poWaitOnExit];
-    Proc.ShowWindow := swoHIDE;
-    Proc.Execute;
+    try
+      Proc.Executable := Converter;
+      // pdftoppm -png -singlefile -f 1 -l 1 <pdf> <out_base>
+      Proc.Parameters.Add('-png');
+      Proc.Parameters.Add('-singlefile');
+      Proc.Parameters.Add('-f'); Proc.Parameters.Add('1');
+      Proc.Parameters.Add('-l'); Proc.Parameters.Add('1');
+      Proc.Parameters.Add(PdfPath);
+      Proc.Parameters.Add(OutBase);
+      Proc.Options := [poWaitOnExit];
+      Proc.ShowWindow := swoHIDE;
+      Proc.Execute;
+    except
+      // ignore execution failures; will return ''
+    end;
   finally
     Proc.Free;
   end;
