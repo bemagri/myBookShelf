@@ -62,8 +62,11 @@ begin
       LogInfoFmt('PDF metadata parsed: title="%s" authors="%s" result=%s',
         [Title, Authors, BoolToStr(Result, True)]);
     except
-      on E: Exception do LogErrorFmt('pdfinfo failed: %s', [E.Message]);
-      Result := False;
+      on E: Exception do
+      begin
+        LogErrorFmt('pdfinfo failed: %s', [E.Message]);
+        Result := False;
+      end;
     end;
   finally
     sl.Free;
@@ -119,8 +122,11 @@ begin
         end;
       end;
     except
-      on E: Exception do LogErrorFmt('unzip -Z1 failed: %s', [E.Message]);
-      opfPath := '';
+      on E: Exception do
+      begin
+        LogErrorFmt('unzip -Z1 failed: %s', [E.Message]);
+        opfPath := '';
+      end;
     end;
   finally
     sl.Free;
@@ -148,8 +154,11 @@ begin
       stream.CopyFrom(proc.Output, 0);
       stream.Position := 0;
     except
-      on E: Exception do LogErrorFmt('unzip -p failed: %s', [E.Message]);
-      stream.Size := 0;
+      on E: Exception do
+      begin
+        LogErrorFmt('unzip -p failed: %s', [E.Message]);
+        stream.Size := 0;
+      end;
     end;
   finally
     if Assigned(env) then env.Free;
@@ -159,8 +168,11 @@ begin
     try
       ReadXMLFile(xml, stream);
     except
-      on E: Exception do LogErrorFmt('ReadXML OPF failed: %s', [E.Message]);
-      Exit(False);
+      on E: Exception do
+      begin
+        LogErrorFmt('ReadXML OPF failed: %s', [E.Message]);
+        Exit(False);
+      end;
     end;
     try
       meta := xml.DocumentElement.FindNode('metadata');
