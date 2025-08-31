@@ -6,15 +6,15 @@ interface
 
 uses
   Classes, SysUtils, DOM, XMLRead, XMLWrite, Controls, Book, BookCollection,
-  LazUTF8;
+  LazUTF8, LazFileUtils;
 
 { Load books from an XML file into AList. Clears the collection first.
   Parent is where TBook cover controls should be parented (e.g., PanelBackground). }
-procedure LoadBooksXML(const FileName: String; AList: TBookCollection; Parent: TWinControl);
+procedure LoadBooksXML(const FileName: String; aList: TBookCollection; Parent: TWinControl);
 
 { Save AList to XML. Writes to <FileName>.tmp then atomically renames to FileName.
   Ensures no duplicate entries are written (based on a stable key). }
-procedure SaveBooksXML(const FileName: String; AList: TBookCollection);
+procedure SaveBooksXML(const FileName: String; aList: TBookCollection);
 
 implementation
 
@@ -36,7 +36,7 @@ begin
   Exit('ti:' + NormLower(Title) + '|' + NormLower(Authors));
 end;
 
-procedure LoadBooksXML(const FileName: String; AList: TBookCollection; Parent: TWinControl);
+procedure LoadBooksXML(const FileName: String; aList: TBookCollection; Parent: TWinControl);
 var
   Doc   : TXMLDocument;
   Root  : TDOMElement;
@@ -47,13 +47,13 @@ var
   seen  : TStringList;
   key   : String;
 begin
-  if (AList = nil) or (Parent = nil) then Exit;
+  if (aList = nil) or (Parent = nil) then Exit;
 
   if not FileExists(FileName) then
   begin
     // Nothing to load; ensure list is empty
-    if AList.Count > 0 then
-      AList.Clear;
+    if aList.Count > 0 then
+      aList.Clear;
     Exit;
   end;
 
@@ -64,7 +64,7 @@ begin
       Exit;
 
     // Start fresh to avoid duplication-on-startup
-    AList.Clear;
+    aList.Clear;
 
     seen := TStringList.Create;
     try
@@ -78,11 +78,12 @@ begin
           El := TDOMElement(Node);
           if UTF8LowerCase(El.TagName) = 'book' then
           begin
-            title   := El.GetAttribute('title');
-            authors := El.GetAttribute('authors');
-            isbn    := El.GetAttribute('isbn');
-            filep   := El.GetAttribute('file');
-            imagep  := El.GetAttribute('image');
+            // DOM returns UnicodeString; convert explicitly to UTF-8 to avoid warnings
+            title   := UTF8Encode(El.GetAttribute('title'));
+            authors := UTF8Encode(El.GetAttribute('authors'));
+            isbn    := UTF8Encode(El.GetAttribute('isbn'));
+            filep   := UTF8Encode(El.GetAttribute('file'));
+            imagep  := UTF8Encode(El.GetAttribute('image'));
 
             key := KeyFor(title, authors, isbn, filep);
             if seen.IndexOf(key) < 0 then
@@ -98,7 +99,7 @@ begin
               if imagep <> '' then B.ImagePath := imagep; // if a specific cover was saved
 
               // NOTE: If your BookCollection uses a different adder, adjust this line:
-              AList.AddBook(B);
+              aList.AddBook(B);
             end;
           end;
         end;
@@ -112,7 +113,7 @@ begin
   end;
 end;
 
-procedure SaveBooksXML(const FileName: String; AList: TBookCollection);
+procedure SaveBooksXML(const FileName: String; aList: TBookCollection);
 var
   Doc   : TXMLDocument;
   Root  : TDOMElement;
@@ -123,7 +124,7 @@ var
   seen  : TStringList;
   key   : String;
 begin
-  if AList = nil then Exit;
+  if aList = nil then Exit;
 
   // Build XML document
   Doc := TXMLDocument.Create;
@@ -136,9 +137,9 @@ begin
     try
       seen.Sorted := True; seen.Duplicates := dupIgnore;
 
-      for i := 0 to AList.Count - 1 do
+      for i := 0 to aList.Count - 1 do
       begin
-        B := AList.Books[i];
+        B := aList.Books[i];
         key := KeyFor(B.Title, B.Authors, B.ISBN, B.FilePath);
         if seen.IndexOf(key) >= 0 then
           Continue; // skip duplicates in memory
@@ -146,11 +147,12 @@ begin
         seen.Add(key);
 
         El := Doc.CreateElement('book');
-        El.SetAttribute('title',   B.Title);
-        El.SetAttribute('authors', B.Authors);
-        El.SetAttribute('isbn',    B.ISBN);
-        El.SetAttribute('file',    B.FilePath);
-        El.SetAttribute('image',   B.ImagePath);
+        // Convert UTF-8 AnsiString to UnicodeString for XML writer
+        El.SetAttribute('title',   UTF8Decode(B.Title));
+        El.SetAttribute('authors', UTF8Decode(B.Authors));
+        El.SetAttribute('isbn',    UTF8Decode(B.ISBN));
+        El.SetAttribute('file',    UTF8Decode(B.FilePath));
+        El.SetAttribute('image',   UTF8Decode(B.ImagePath));
 
         Root.AppendChild(El);
       end;
@@ -161,10 +163,10 @@ begin
     // Atomic write: to .tmp then rename
     tmp := FileName + '.tmp';
     WriteXMLFile(Doc, tmp);
-    // Ensure target dir exists, then replace
-    if FileExists(FileName) then
-      DeleteFile(FileName);
-    if not RenameFile(tmp, FileName) then
+    // Replace using UTF-8 safe file ops
+    if FileExistsUTF8(FileName) then
+      DeleteFileUTF8(FileName);
+    if not RenameFileUTF8(tmp, FileName) then
       raise Exception.CreateFmt('Failed to write %s', [FileName]);
   finally
     Doc.Free;

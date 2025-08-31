@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Graphics, ExtCtrls, Controls, LCLIntf, LResources, Process,
   Math, IntfGraphics, FPImage, FPReadPNG, FPReadJPEG, GraphType, LazCanvas,
-  FileUtil, LazJPG;
+  FileUtil;
 
 
 type
@@ -156,12 +156,12 @@ end;
 {------------------------------------------------------------------------------}
 { Mouse handlers (hook up in constructor)                                      }
 {------------------------------------------------------------------------------}
-procedure TBook.BookMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TBook.BookMouseDown({%H-}Sender: TObject; {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
 begin
   // You likely toggle selection elsewhere; keep this stub or wire to a callback
 end;
 
-procedure TBook.BookDoubleClick(Sender: TObject);
+procedure TBook.BookDoubleClick({%H-}Sender: TObject);
 begin
   // Open file / details dialog etc. (your existing logic)
 end;
@@ -311,7 +311,10 @@ end;
 
 destructor TBook.Destroy;
 begin
-  FreeAndNil(mCover);
+  // Do not free mCover here: it is owned by the panel (Owner passed on create)
+  // and will be freed automatically with the form. Individual deletions
+  // explicitly free the cover before freeing the book.
+  mCover := nil;
   inherited Destroy;
 end;
 

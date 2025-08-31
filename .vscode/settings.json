@@ -1,0 +1,6 @@
+// .vscode/settings.json
+{
+  "terminal.integrated.env.linux": {
+    "SSH_AUTH_SOCK": "/run/flatpak/ssh-auth"
+  }
+}

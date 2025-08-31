@@ -5,7 +5,7 @@ unit unitCoverWorker;
 interface
 
 uses
-  Classes, SysUtils, Process, LCLIntf, Graphics, Math, LazJpeg,
+  Classes, SysUtils, Process, LCLIntf, Graphics, Math,
   IntfGraphics, FPImage, FPReadPNG, FPReadJPEG, GraphType, LazCanvas,
   Book, BookCollection, FileUtil;
 
@@ -268,5 +268,17 @@ begin
     Sleep(5); // be nice to the UI event loop
   end;
 end;
+
+finalization
+  // Ensure background thread and queue are cleaned up at program end
+  try
+    CoverWorkerStop;
+  except
+  end;
+  if GPdfQueue <> nil then
+  begin
+    GPdfQueue.Free;
+    GPdfQueue := nil;
+  end;
 
 end.

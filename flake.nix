@@ -77,7 +77,89 @@
           echo "  lazarus &"
           echo
         '';
+        # Build the application using lazbuild and wrap for runtime libs
+        myBookShelfPkg = pkgs.stdenv.mkDerivation rec {
+          pname = "myBookShelf";
+          version = "0.1.0";
+          src = self;
+
+          nativeBuildInputs = [
+            lazGtk
+            pkgs.fpc
+            pkgs.pkg-config
+            pkgs.makeWrapper
+          ];
+
+          # C/GTK libraries needed at link time (provides .pc files and libs)
+          buildInputs = [
+            pkgs.gtk2
+            pkgs.glib
+            pkgs.pango
+            pkgs.cairo
+            pkgs.gdk-pixbuf
+            pkgs.atk
+            pkgs.xorg.libX11
+            pkgs.xorg.libXext
+            pkgs.xorg.libXrender
+            pkgs.xorg.libXrandr
+            pkgs.xorg.libXinerama
+            pkgs.xorg.libXcursor
+            pkgs.xorg.libXi
+            pkgs.xorg.libXfixes
+          ];
+
+          # Lazarus puts the binary next to the .lpr by default
+          buildPhase = ''
+            runHook preBuild
+            export LAZARUS_DIR=${lazGtk}/share/lazarus
+            export HOME=$TMPDIR
+            mkdir -p "$HOME/.lazarus"
+            echo "Using Lazarus at $LAZARUS_DIR"
+            # Help the linker find GTK libs at build time
+            export FPCOPT="$FPCOPT -k-L${gtkLibPath}"
+            export PKG_CONFIG_PATH
+            lazbuild --lazarusdir="$LAZARUS_DIR" --ws=gtk2 --build-all src/myBookShelf.lpi
+          runHook postBuild
+          '';
+
+          installPhase = ''
+            runHook preInstall
+            mkdir -p $out/bin
+            # Try the usual locations for the produced binary
+            if [ -x src/myBookShelf ]; then
+              cp -v src/myBookShelf $out/bin/myBookShelf
+            elif [ -x src/mybookshelf ]; then
+              cp -v src/mybookshelf $out/bin/myBookShelf
+            elif [ -x src/lib/*/myBookShelf ]; then
+              cp -v src/lib/*/myBookShelf $out/bin/myBookShelf
+            else
+              echo "error: built binary not found" >&2
+              ls -R src || true
+              exit 1
+            fi
+            # Wrap with GTK2 runtime libraries and CA bundle for TLS
+            wrapProgram $out/bin/myBookShelf \
+              --set LCLWidgetType gtk2 \
+              --set LD_LIBRARY_PATH "${gtkLibPath}:${pkgs.openssl.out}/lib" \
+              --set SSL_CERT_FILE ${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt \
+              --set NIX_SSL_CERT_FILE ${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
+            runHook postInstall
+          '';
+
+          meta = with lib; {
+            description = "Personal bookshelf manager (Lazarus/FPC)";
+            license = licenses.mit;
+            platforms = platforms.linux;
+          };
+        };
       in {
+        packages.default = myBookShelfPkg;
+
+        apps.default = {
+          type = "app";
+          program = "${myBookShelfPkg}/bin/myBookShelf";
+        };
+
         devShells = {
           default = pkgs.mkShell {
             buildInputs = commonInputs;

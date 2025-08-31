@@ -14,17 +14,17 @@ type
 TBookCollection = class(TObject)
   private
     mList : TFPList;
-    function Get(Index: Integer): Tbook;
+    function Get(Index: Integer): TBook;
 
   public
-    procedure StoreData(path:String);
-    procedure LoadData(path:String; parent:TComponent);
-    procedure AddBook(book: Tbook);
+    procedure StoreData(path: String);
+    procedure LoadData(path: String; parent: TComponent);
+    procedure AddBook(book: TBook);
     property  Books[Index: Integer]:TBook read Get;
-    procedure Remove(book:TBook);
-    function Count:Integer;
+    procedure Remove(book: TBook);
+    function Count: Integer;
     procedure Clear;
-    procedure SwapBooks(Source,Dest:Integer);
+    procedure SwapBooks(Source, Dest: Integer);
     constructor Create;
     destructor Destroy; override;
 
@@ -46,57 +46,62 @@ begin
   for i := mList.Count - 1 downto 0 do
   begin
     book := TBook(mList[i]);
-    book.Free;               // free cover controls and the book itself
+    // Explicitly free the cover control to avoid orphaned images
+    if Assigned(book) and Assigned(book.Cover) then
+      book.Cover.Free;
+    book.Free;               // free the book itself
   end;
   mList.Clear;
 end;
 
-function Tbookcollection.Get(Index: Integer): Tbook;
+function TBookCollection.Get(Index: Integer): TBook;
 begin
-  result:=(TBook (mList.Items[index]));
+  Result := TBook(mList.Items[index]);
 End;
 
-procedure Tbookcollection.Addbook(Book: Tbook);
+procedure TBookCollection.AddBook(Book: TBook);
 begin
   mList.Add(book);
 End;
 
-procedure Tbookcollection.Remove(Book: Tbook);
+procedure TBookCollection.Remove(Book: TBook);
 begin
   mList.Remove(book);
 end;
 
-function Tbookcollection.Count: Integer;
+function TBookCollection.Count: Integer;
 begin
   result:=mList.Count;
 end;
 
-procedure Tbookcollection.Swapbooks(Source, Dest: Integer);
+procedure TBookCollection.SwapBooks(Source, Dest: Integer);
 begin
  mList.Move(Source,Dest);
 end;
 
-constructor Tbookcollection.Create;
+constructor TBookCollection.Create;
 begin
   mList:=TFPList.Create;
 end;
 
-destructor Tbookcollection.Destroy;
+destructor TBookCollection.Destroy;
 var i:Integer;
     book:TBook;
 begin
   CoverWorkerStop;
   for i:=0 to mList.Count-1 do
-      begin
-        book:= (TBook(mList.Items[i]));
-        FreeAndNil(book);
-      end;
+  begin
+    book := TBook(mList.Items[i]);
+    if Assigned(book) and Assigned(book.Cover) then
+      book.Cover.Free;
+    FreeAndNil(book);
+  end;
 
   FreeAndNil(mList);
 end;
 
 
-procedure Tbookcollection.Storedata(Path: String);
+procedure TBookCollection.StoreData(Path: String);
 var
   tfOut: TextFile;
   i:integer;
@@ -110,7 +115,7 @@ begin
     rewrite(tfOut);
     for i:=0 to mList.Count-1 do
         begin
-          temp:= (TBook(mList[i]));
+          temp:= TBook(mList[i]);
           writeln(tfOut, temp.Title);
           WriteLn(tfOut, temp.Authors);
           WriteLn(tfOut, temp.ISBN);
@@ -129,7 +134,7 @@ begin
 
 end;
 
-procedure Tbookcollection.Loaddata(Path: String; Parent: Tcomponent);
+procedure TBookCollection.LoadData(Path: String; Parent: TComponent);
 var tempBook:TBook;
     title,filepath,imagepath:String;
     authors,isbn:String;
@@ -149,9 +154,9 @@ begin
       readln(datafile);
 
       tempBook:=TBook.Create(parent);
-      tempbook.Title:=title;
-      tempbook.Authors:=authors;
-      tempbook.ISBN:=isbn;
+      tempBook.Title:=title;
+      tempBook.Authors:=authors;
+      tempBook.ISBN:=isbn;
       tempBook.FilePath:=filepath;
       tempBook.ImagePath:=imagepath;
       mList.Add(tempBook);
@@ -164,4 +169,3 @@ begin
 end;
 
 end.
-

@@ -12,37 +12,37 @@ uses
 
 type
 
-  { Tform1 }
-  Tform1 = class(Tform)
+  { TForm1 }
+  TForm1 = class(TForm)
     EditSearch: Tedit;
     ButtonSettings: Timage;
     ImageToolBar: Timage;
     ButtonAdd: Timage;
     Opendialog1: Topendialog;
     PanelBackground: Tscrollbox;
-    procedure FormResize(Sender: TObject);
-    procedure ButtonAddClick(Sender: TObject);
-    procedure ButtonAddMouseEnter(Sender: TObject);
-    procedure ButtonAddMouseLeave(Sender: TObject);
-    procedure ButtonSettingsClick(Sender: TObject);
-    procedure ButtonSettingsMouseEnter(Sender: TObject);
-    procedure ButtonSettingsMouseLeave(Sender: TObject);
-    procedure Editsearchenter(Sender: Tobject);
-    procedure Editsearchexit(Sender: Tobject);
-    procedure Editsearchkeypress(Sender: Tobject; var Key: Char);
-    procedure Formclose(Sender: Tobject; var Closeaction: Tcloseaction);
-    procedure Formcreate(Sender: Tobject);
-    procedure Formkeydown(Sender: Tobject; var Key: Word; Shift: Tshiftstate);
-    procedure Panelbackgroundclick(Sender: Tobject);
-    procedure Panelbackgrounddragdrop(Sender, Source: Tobject; X, Y: Integer);
-    procedure Panelbackgrounddragover(Sender, Source: Tobject; X, Y: Integer;
-      State: Tdragstate; var Accept: Boolean);
-    procedure Panelbackgroundpaint(Sender: Tobject);
+    procedure FormResize({%H-}Sender: TObject);
+    procedure ButtonAddClick({%H-}Sender: TObject);
+    procedure ButtonAddMouseEnter({%H-}Sender: TObject);
+    procedure ButtonAddMouseLeave({%H-}Sender: TObject);
+    procedure ButtonSettingsClick({%H-}Sender: TObject);
+    procedure ButtonSettingsMouseEnter({%H-}Sender: TObject);
+    procedure ButtonSettingsMouseLeave({%H-}Sender: TObject);
+    procedure EditSearchEnter({%H-}Sender: TObject);
+    procedure EditSearchExit({%H-}Sender: TObject);
+    procedure EditSearchKeyPress({%H-}Sender: TObject; var Key: Char);
+    procedure FormClose({%H-}Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormCreate({%H-}Sender: TObject);
+    procedure FormKeyDown({%H-}Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
+    procedure PanelBackgroundClick({%H-}Sender: TObject);
+    procedure PanelBackgroundDragDrop({%H-}Sender, Source: TObject; X, Y: Integer);
+    procedure PanelBackgroundDragOver({%H-}Sender, {%H-}Source: TObject; {%H-}X, {%H-}Y: Integer;
+      {%H-}State: TDragState; var Accept: Boolean);
+    procedure PanelBackgroundPaint({%H-}Sender: TObject);
     procedure RearrangeBooksOnScreen();
-    procedure Panelbackgroundresize(Sender: Tobject);
-    function getBookIndexAtPoint(X,Y:Integer):Integer;
+    procedure PanelBackgroundResize({%H-}Sender: TObject);
+    function GetBookIndexAtPoint(X,Y:Integer):Integer;
     procedure UnselectAll;
-    function getCoverIndex(cover:TImage):Integer;
+    function GetCoverIndex(cover:TImage):Integer;
   private
     mAdd,mAddHover,mGear,mGearHover:TPicture;
     LayoutTimer: TTimer;
@@ -52,14 +52,15 @@ type
   end;
 
 var
-  Form1: Tform1;
-  BookList:TBookCollection;
-  Xspace, Yspace:integer;
-  dataPath:String;
-  booksDir:String;
-  background,toolbar:TPicture;
-  bookWidth,bookHeight:Integer;
-  optCopyBooks,optRenameBooks,optExtractMeta:Boolean;
+  Form1: TForm1;
+  bookList: TBookCollection;
+  xSpace, ySpace: integer;
+  dataXmlPath: String;
+  booksDir: String;
+  backgroundTile, toolbar: TPicture;
+  coverWidth, coverHeight: Integer;
+  optCopyBooks, optRenameBooks, optExtractMeta: Boolean;
+  isClosing: Boolean = False;
 
 
 
@@ -69,7 +70,7 @@ implementation
 
 { Tform1 }
 
-procedure TForm1.FormResize(Sender: TObject);
+procedure TForm1.FormResize({%H-}Sender: TObject);
 begin
   // debounce: restart the timer, don’t layout on every pixel move
   LayoutTimer.Enabled := False;
@@ -82,55 +83,50 @@ begin
   RearrangeBooksOnScreen;
 end;
 
-procedure Tform1.Panelbackgroundclick(Sender: Tobject);
+procedure TForm1.PanelBackgroundClick({%H-}Sender: TObject);
 begin
  ActiveControl:=PanelBackground;
 
  UnselectAll;
  PanelBackground.Invalidate;
-End;
+end;
 
-procedure Tform1.Panelbackgrounddragdrop(Sender, Source: Tobject; X, Y: Integer);
+procedure TForm1.PanelBackgroundDragDrop({%H-}Sender, Source: TObject; X, Y: Integer);
 var src,dest:integer;
 begin
- src:=getCoverIndex(TImage(Source));
- dest:=getBookIndexAtPoint(X,Y);
-   if (src > -1) and (dest > -1) then BookList.SwapBooks(src,dest);
+ src:=GetCoverIndex(TImage(Source));
+ dest:=GetBookIndexAtPoint(X,Y);
+   if (src > -1) and (dest > -1) then bookList.SwapBooks(src,dest);
    UnselectAll;
-   PanelBackground.Invalidate;
-   //RearrangeBooksOnScreen();
-End;
+   // After changing book order, recalculate layout so covers move immediately
+   RearrangeBooksOnScreen();
+end;
 
-procedure Tform1.Panelbackgrounddragover(Sender, Source: Tobject; X,
-  Y: Integer; State: Tdragstate; var Accept: Boolean);
+procedure TForm1.PanelBackgroundDragOver({%H-}Sender, {%H-}Source: TObject; {%H-}X,
+  {%H-}Y: Integer; {%H-}State: TDragState; var Accept: Boolean);
 begin
  Accept:=True;
-End;
+end;
 
-procedure Tform1.Panelbackgroundpaint(Sender: Tobject);
+procedure TForm1.PanelBackgroundPaint({%H-}Sender: TObject);
 var w,h:Integer;
     x,y:Integer;
 begin
-
   x:=0;
   y:=0;
-  w:=background.Width;
-  h:=background.Height;
-
+  w:=backgroundTile.Width;
+  h:=backgroundTile.Height;
   while x < PanelBackground.Canvas.Width do
   begin
-
     while y < PanelBackground.Canvas.Height do
     begin
-      PanelBackground.Canvas.Draw(x,y,background.Graphic);
+      PanelBackground.Canvas.Draw(x,y,backgroundTile.Graphic);
       y:=y+h;
     end;
-
     x:=x+w;
     y:=0;
   end;
-
-End;
+end;
 
 procedure TForm1.RearrangeBooksOnScreen;
 var
@@ -153,9 +149,9 @@ var
   var i : Integer;
   begin
     SetLength(visibleCovers, 0);
-    for i := 0 to BookList.Count - 1 do
+    for i := 0 to bookList.Count - 1 do
     begin
-      cover := BookList.Books[i].Cover;
+      cover := bookList.Books[i].Cover;
       if Assigned(cover) and cover.Visible then
       begin
         SetLength(visibleCovers, Length(visibleCovers) + 1);
@@ -170,18 +166,19 @@ var
   var need: Integer;
   begin
     // total = n*bookWidth + (n+1)*gap  (edge gaps included)
-    need := (n * bookWidth) + ((n + 1) * gapPx);
+    need := (n * coverWidth) + ((n + 1) * gapPx);
     Result := need <= width;
   end;
 
 begin
+  if (bookList = nil) or isClosing then Exit;
   PanelBackground.DisableAlign;
   try
     availW := PanelClientWidth;
     if availW <= 0 then Exit;
 
-    minGap := Xspace;     // your existing horizontal spacing as the minimum
-    curY   := Yspace;     // top margin
+    minGap := xSpace;     // your existing horizontal spacing as the minimum
+    curY   := ySpace;     // top margin
     CollectVisible;
 
     // Early exit: nothing to place
@@ -190,8 +187,8 @@ begin
     // Ensure covers have correct size (in case they were recreated)
     for i := 0 to countVisible - 1 do
     begin
-      visibleCovers[i].Width  := bookWidth;
-      visibleCovers[i].Height := bookHeight;
+      visibleCovers[i].Width  := coverWidth;
+      visibleCovers[i].Height := coverHeight;
       visibleCovers[i].Parent := PanelBackground;
     end;
 
@@ -210,7 +207,7 @@ begin
       if (rowStart + rowCount) < countVisible then
       begin
         // Full row → justified
-        gap := (availW - (rowCount * bookWidth)) / (rowCount + 1);
+        gap := (availW - (rowCount * coverWidth)) / (rowCount + 1);
         if gap < minGap then gap := minGap; // safety
       end
       else
@@ -227,11 +224,11 @@ begin
         cover := visibleCovers[k];
         cover.Left := Round(x);
         cover.Top  := curY;
-        x := x + bookWidth + gap;
+        x := x + coverWidth + gap;
       end;
 
       // Next row Y
-      curY := curY + bookHeight + Yspace + 26;
+      curY := curY + coverHeight + ySpace + 26;
       Inc(rowStart, rowCount);
     end;
 
@@ -246,22 +243,24 @@ begin
 end;
 
 
-procedure Tform1.Panelbackgroundresize(Sender: Tobject);
+procedure TForm1.PanelBackgroundResize({%H-}Sender: TObject);
 begin
+ if isClosing then Exit;
  RearrangeBooksOnScreen();
 
  EditSearch.Left:=Width-EditSearch.Width-20;
 End;
 
-function Tform1.Getbookindexatpoint(X, Y: Integer): Integer;
+function TForm1.GetBookIndexAtPoint(X, Y: Integer): Integer;
 var i:Integer;
     cover:TImage;
 begin
- for i:=0 to BookList.Count-1 do
+ for i:=0 to bookList.Count-1 do
  begin
-   cover:=BookList.Books[i].Cover;
-    if (X >= cover.Left) and (X <= cover.Left + cover.Width) and
-      (Y >= cover.Top) and (Y <= cover.Top + cover.Height) then
+  cover:=bookList.Books[i].Cover;
+    if Assigned(cover) and cover.Visible and
+       (X >= cover.Left) and (X <= cover.Left + cover.Width) and
+       (Y >= cover.Top) and (Y <= cover.Top + cover.Height) then
     begin
      result :=i;
      exit;
@@ -270,21 +269,21 @@ begin
  result:=-1;
 end;
 
-procedure Tform1.Unselectall;
+procedure TForm1.UnselectAll;
 var i:Integer;
 begin
- for i:=0 to BookList.Count-1 do
+ for i:=0 to bookList.Count-1 do
  begin
-  BookList.Books[i].isSelected:=False;
+  bookList.Books[i].isSelected:=False;
  end;
 end;
 
-function Tform1.Getcoverindex(Cover: Timage): Integer;
+function TForm1.GetCoverIndex(Cover: Timage): Integer;
 var i:integer;
 begin
- for i:=0 to Booklist.count-1 do
+ for i:=0 to bookList.count-1 do
  begin
-  if Booklist.books[i].Cover = Cover then
+  if Assigned(bookList.books[i].Cover) and (bookList.books[i].Cover = Cover) then
   begin
     result:=i;
     exit;
@@ -294,13 +293,29 @@ begin
 end;
 
 
-procedure Tform1.Formclose(Sender: Tobject; var Closeaction: Tcloseaction);
+procedure TForm1.FormClose({%H-}Sender: TObject; var CloseAction: TCloseAction);
 begin
-SaveBooksXML(dataPath, BookList);
-BookList.Destroy;
-End;
+  isClosing := True;
+  if Assigned(LayoutTimer) then LayoutTimer.Enabled := False;
+  // Ensure background worker thread is stopped before destroying books/controls
+  CoverWorkerStop;
+  try
+    if Assigned(bookList) then
+      SaveBooksXML(dataXmlPath, bookList);
+  except
+    // ignore save errors on shutdown
+  end;
+  // Free images created at runtime
+  FreeAndNil(mAdd);
+  FreeAndNil(mAddHover);
+  FreeAndNil(mGear);
+  FreeAndNil(mGearHover);
+  FreeAndNil(backgroundTile);
+  FreeAndNil(bookList);
+  CloseAction := caFree;
+end;
 
-procedure Tform1.ButtonAddClick(Sender: TObject);
+procedure TForm1.ButtonAddClick({%H-}Sender: TObject);
 var
   book : TBook;
   i    : Integer;
@@ -363,9 +378,9 @@ var
     else
       book.Title := ChangeFileExt(ExtractFileName(dest), '');
 
-    BookList.AddBook(book);
-    book.Cover.Width:=bookWidth;
-    book.Cover.Height:=bookHeight;
+    bookList.AddBook(book);
+    book.Cover.Width:=coverWidth;
+    book.Cover.Height:=coverHeight;
     book.Cover.Parent:=PanelBackground;
     CoverWorkerEnqueueBookIfMissing(book);
   end;
@@ -391,17 +406,17 @@ begin
   end;
 End;
 
-procedure Tform1.ButtonAddMouseEnter(Sender: TObject);
+procedure TForm1.ButtonAddMouseEnter({%H-}Sender: TObject);
 begin
   ButtonAdd.Picture := mAddHover;
 end;
 
-procedure Tform1.ButtonAddMouseLeave(Sender: TObject);
+procedure TForm1.ButtonAddMouseLeave({%H-}Sender: TObject);
 begin
   ButtonAdd.Picture := mAdd;
 end;
 
-procedure Tform1.ButtonSettingsClick(Sender: TObject);
+procedure TForm1.ButtonSettingsClick({%H-}Sender: TObject);
 begin
 SettingsDialog := TSettingsDialog.Create(Self);
   try
@@ -411,53 +426,55 @@ SettingsDialog := TSettingsDialog.Create(Self);
   end;
 end;
 
-procedure Tform1.ButtonSettingsMouseEnter(Sender: TObject);
+procedure TForm1.ButtonSettingsMouseEnter({%H-}Sender: TObject);
 begin
   ButtonSettings.Picture := mGearHover;
 end;
 
-procedure Tform1.ButtonSettingsMouseLeave(Sender: TObject);
+procedure TForm1.ButtonSettingsMouseLeave({%H-}Sender: TObject);
 begin
   ButtonSettings.Picture := mGear;
 end;
 
-procedure Tform1.Editsearchenter(Sender: Tobject);
+procedure TForm1.EditSearchEnter({%H-}Sender: TObject);
 begin
-EditSearch.Caption:='';
-End;
+  // Use Text for TEdit, not Caption
+  EditSearch.Text := '';
+end;
 
-procedure Tform1.Editsearchexit(Sender: Tobject);
+procedure TForm1.EditSearchExit({%H-}Sender: TObject);
 begin
-  EditSearch.Caption:='Search...';
-End;
+  // Restore placeholder text when leaving the field
+  EditSearch.Text := 'Search...';
+end;
 
-procedure Tform1.Editsearchkeypress(Sender: Tobject; var Key: Char);
+procedure TForm1.EditSearchKeyPress({%H-}Sender: TObject; var Key: Char);
 begin
 if Key = #13 then
 begin
    //perform the search here
 end;
 
-End;
+end;
 
-procedure Tform1.Formcreate(Sender: Tobject);
+procedure TForm1.FormCreate({%H-}Sender: TObject);
 var
  i:integer;
  cfgDir, cfgPath, dataDir: String;
  ini: TIniFile;
  autoPdfCover: Boolean;
 begin
- bookWidth:=130;
- bookHeight:=200;
- Xspace:=40;
- Yspace:=25;
+ coverWidth:=130;
+ coverHeight:=200;
+ xSpace:=40;
+ ySpace:=25;
 
  Form1.KeyPreview:=True;
  ActiveControl:=PanelBackground;
 
 
- background:=TPicture.Create;
- background.LoadFromLazarusResource('shelf');
+ backgroundTile:=TPicture.Create;
+ backgroundTile.LoadFromLazarusResource('shelf');
 
  PanelBackground.DoubleBuffered := True; // reduce flicker
 
@@ -478,6 +495,12 @@ begin
  mGearHover.LoadFromLazarusResource('gear_hover');
  ButtonAdd.Picture:=mAdd;
  ButtonSettings.Picture:=mGear;
+  // Load toolbar image from Lazarus resources instead of large LFM-embedded data
+  try
+    ImageToolBar.Picture.LoadFromLazarusResource('toolbar');
+  except
+    // ignore if resource missing; fallback to LFM-embedded picture
+  end;
 
  // Load config.ini if present to resolve paths and options
   cfgDir := IncludeTrailingPathDelimiter(GetAppConfigDirUTF8(False));
@@ -498,60 +521,62 @@ begin
 
   if not DirectoryExistsUTF8(dataDir) then CreateDirUTF8(dataDir);
   if not DirectoryExistsUTF8(booksDir) then CreateDirUTF8(booksDir);
-  dataPath := IncludeTrailingPathDelimiter(dataDir) + 'books.xml';
+  dataXmlPath := IncludeTrailingPathDelimiter(dataDir) + 'books.xml';
 
- BookList:=TBookCollection.Create;
+ bookList:=TBookCollection.Create;
 
   // speed up startup: we skipped synchronous PDF generation during load
   SetPdfCoverGenerationEnabled(False);
   try
-    if FileExistsUTF8(dataPath) then
-      LoadBooksXML(dataPath, BookList, PanelBackground);
+    if FileExistsUTF8(dataXmlPath) then
+      LoadBooksXML(dataXmlPath, bookList, PanelBackground);
   finally
     SetPdfCoverGenerationEnabled(autoPdfCover); // re-enable per settings
   end;
 
- for i:=0 to BookList.Count-1 do
- begin
-  with BookList.Books[i] do
+ for i:=0 to bookList.Count-1 do
+begin
+  with bookList.Books[i] do
   begin
-    Cover.Width:=bookWidth;
-    Cover.Height:=bookHeight;
+    Cover.Width:=coverWidth;
+    Cover.Height:=coverHeight;
     Cover.Parent:=PanelBackground;
     EnsureScaledToCoverSize;
   end;
- end;
+end;
 
  RearrangeBooksOnScreen();
 
  // Background: generate covers only where still generic
- CoverWorkerEnqueueMissingFromBookList(BookList);
+ CoverWorkerEnqueueMissingFromBookList(bookList);
  CoverWorkerStart;
 
-End;
+end;
 
-procedure Tform1.Formkeydown(Sender: Tobject; var Key: Word; Shift: Tshiftstate);
+procedure TForm1.FormKeyDown({%H-}Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
 var i:Integer;
+    b:TBook;
 begin
 
  if Key = VK_DELETE then
  begin
-   for i:= BookList.Count-1 downto 0 do
+   for i:= bookList.Count-1 downto 0 do
    begin
-    if BookList.Books[i].isSelected = True then
+    if bookList.Books[i].isSelected = True then
     begin
-       BookList.Books[i].Cover.Free;
-       BookList.Remove(BookList.Books[i]);
+       // Remove the cover control first (owned by PanelBackground), then free book
+       b := bookList.Books[i];
+       if Assigned(b.Cover) then b.Cover.Free;
+       bookList.Remove(b);
+       b.Free;
     end;
    end;
    RearrangeBooksOnScreen();
  end;
-
-End;
+end;
 
 
 initialization
 {$i mybookshelf.lrs}
 
 end.
-

@@ -1,0 +1,9 @@
+object SettingsDialog: TSettingsDialog
+  Left = 732
+  Height = 387
+  Top = 298
+  Width = 678
+  BorderStyle = bsDialog
+  Caption = 'Settings'
+  LCLVersion = '1.6.4.0'
+end

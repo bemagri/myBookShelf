@@ -23,10 +23,10 @@ type
     chkPdfCovers: TCheckBox;
     btnOK: TBitBtn;
     btnCancel: TBitBtn;
-    procedure FormCreate(Sender: TObject);
-    procedure BtnBrowseClick(Sender: TObject);
-    procedure BtnBrowseBooksClick(Sender: TObject);
-    procedure BtnOKClick(Sender: TObject);
+    procedure FormCreate({%H-}Sender: TObject);
+    procedure BtnBrowseClick({%H-}Sender: TObject);
+    procedure BtnBrowseBooksClick({%H-}Sender: TObject);
+    procedure BtnOKClick({%H-}Sender: TObject);
     function  ConfigDir: String;
     function  ConfigPath: String;
     procedure LoadSettings;

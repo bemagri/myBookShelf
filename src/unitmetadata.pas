@@ -5,7 +5,7 @@ unit unitMetadata;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, FileUtil;
 
 // Extract basic metadata (title, authors) from a book file.
 // Supports PDF (via pdfinfo) and EPUB (via unzip and parsing the OPF file).
@@ -127,11 +127,11 @@ begin
           node := meta.ChildNodes[i];
           lname := UTF8LowerCase(node.NodeName);
           if (Title = '') and ((lname = 'dc:title') or (lname = 'title')) then
-            Title := Trim(node.TextContent);
+            Title := UTF8Encode(Trim(node.TextContent));
           if ((lname = 'dc:creator') or (lname = 'creator') or (lname = 'dc:author') or (lname = 'author')) then
           begin
             if Authors <> '' then Authors := Authors + ', ';
-            Authors := Authors + Trim(node.TextContent);
+            Authors := Authors + UTF8Encode(Trim(node.TextContent));
           end;
         end;
       end;
@@ -162,4 +162,3 @@ begin
 end;
 
 end.
-
