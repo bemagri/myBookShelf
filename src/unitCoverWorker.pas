@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Process, LCLIntf, Graphics, Math,
   IntfGraphics, FPImage, FPReadPNG, FPReadJPEG, GraphType, LazCanvas,
-  Book, BookCollection, FileUtil;
+  Book, BookCollection, FileUtil, unitLog;
 
 { Call this once after loading your data: it scans the list and enqueues
   only the PDFs that still use the generic cover (i.e. ImagePath=''). }
@@ -75,6 +75,7 @@ begin
   // look for pdftoppm in PATH (Poppler utilities); fall back to bare name
   Converter := FindDefaultExecutablePath('pdftoppm');
   if Converter = '' then Converter := 'pdftoppm';
+  LogInfoFmt('pdftoppm tool: %s', [Converter]);
 
   OutBase := ChangeFileExt(PdfPath, ''); // /path/book.pdf -> /path/book
 
@@ -91,9 +92,11 @@ begin
       Proc.Parameters.Add(OutBase);
       Proc.Options := [poWaitOnExit];
       Proc.ShowWindow := swoHIDE;
+      LogDebugFmt('Running: %s -png -singlefile -f 1 -l 1 %s %s', [Proc.Executable, PdfPath, OutBase]);
       Proc.Execute;
+      LogDebugFmt('pdftoppm exit=%d', [Proc.ExitStatus]);
     except
-      // ignore execution failures; will return ''
+      on E: Exception do LogErrorFmt('pdftoppm failed: %s', [E.Message]);
     end;
   finally
     Proc.Free;
@@ -124,6 +127,7 @@ begin
         end;
         Png.Assign(Img);
         Png.SaveToFile(Result);
+        LogInfoFmt('Generated cover: %s', [Result]);
       finally
         Png.Free;
         Canvas.Free;
@@ -131,6 +135,10 @@ begin
         SrcImg.Free;
       end;
     end;
+  end
+  else
+  begin
+    LogWarnFmt('pdftoppm produced no output for: %s', [PdfPath]);
   end;
 end;
 
@@ -151,9 +159,13 @@ begin
   EnsureQueue;
   l := GPdfQueue.LockList;
   try
+    LogInfoFmt('Scanning list for missing PDF covers (count=%d)', [AList.Count]);
     for i := 0 to AList.Count - 1 do
       if IsPdf(AList.Books[i].FilePath) and HasGenericCover(AList.Books[i]) then
+      begin
         l.Add(AList.Books[i]);
+        LogDebugFmt('Enqueued for cover: %s', [AList.Books[i].FilePath]);
+      end;
   finally
     GPdfQueue.UnlockList;
   end;
@@ -169,7 +181,10 @@ begin
   l := GPdfQueue.LockList;
   try
     if l.IndexOf(B) < 0 then
+    begin
       l.Add(B);
+      LogDebugFmt('Enqueued single book for cover: %s', [B.FilePath]);
+    end;
   finally
     GPdfQueue.UnlockList;
   end;
@@ -186,6 +201,7 @@ begin
   end;
   if (GWorker = nil) then
   begin
+    LogInfo('Starting cover worker');
     GWorker := TCoverWorker.Create(True);
     GWorker.FreeOnTerminate := False; // we manage lifecycle explicitly
     GWorker.Start;
@@ -199,6 +215,7 @@ var
 begin
   if GWorker <> nil then
   begin
+    LogInfo('Stopping cover worker');
     GWorker.Terminate;
     // Process synchronize calls while waiting to avoid potential deadlock
     while not GWorker.Finished do
@@ -207,6 +224,7 @@ begin
       Sleep(5);
     end;
     FreeAndNil(GWorker);
+    LogInfo('Cover worker stopped');
   end;
   if GPdfQueue <> nil then
   begin
@@ -242,6 +260,7 @@ var
   Img: String;
 begin
   // drain the queue
+  LogInfo('Worker loop started');
   while not Terminated do
   begin
     // Pop one item
@@ -258,7 +277,10 @@ begin
     end;
 
     if B = nil then
+    begin
+      LogInfo('Queue empty, exiting worker');
       Break; // queue empty → exit thread
+    end;
 
     // Skip if it no longer needs a cover
     if not (IsPdf(B.FilePath) and HasGenericCover(B)) then
@@ -268,6 +290,7 @@ begin
     end;
 
     // Generate cover (background thread)
+    LogInfoFmt('Generating cover for: %s', [B.FilePath]);
     Img := GeneratePdfCover(B.FilePath, B.Cover.Width, B.Cover.Height);
 
     if (Img <> '') and FileExists(Img) then
@@ -275,10 +298,13 @@ begin
       // Pass data to main thread via fields + Synchronize
       FApplyBook := B;
       FApplyImg  := Img;
+      LogDebugFmt('Applying cover: %s', [Img]);
       Synchronize(@DoApplyCover);
       FApplyBook := nil;
       FApplyImg  := '';
-    end;
+    end
+    else
+      LogWarnFmt('Cover generation produced no file for: %s', [B.FilePath]);
 
     Sleep(5); // be nice to the UI event loop
   end;

@@ -15,7 +15,7 @@ function ExtractBookMetadata(const FileName: String; out Title, Authors: String)
 implementation
 
 uses
-  Process, DOM, XMLRead, LazUTF8, StrUtils, LazFileUtils;
+  Process, DOM, XMLRead, LazUTF8, StrUtils, LazFileUtils, unitLog;
 
 function ExtractPDFMetadata(const FileName: String; out Title, Authors: String): Boolean;
 var
@@ -31,6 +31,7 @@ begin
   Authors := '';
   exe := FindDefaultExecutablePath('pdfinfo');
   if exe = '' then exe := 'pdfinfo';
+  LogInfoFmt('pdfinfo tool: %s', [exe]);
   proc := TProcess.Create(nil);
   sl := TStringList.Create;
   env := TStringList.Create;
@@ -45,8 +46,10 @@ begin
       proc.Parameters.Add(FileName);
       proc.Options := [poWaitOnExit, poUsePipes];
       proc.ShowWindow := swoHide;
+      LogDebugFmt('Running: %s %s', [proc.Executable, FileName]);
       proc.Execute;
       sl.LoadFromStream(proc.Output);
+      LogDebugFmt('pdfinfo exit=%d, output lines=%d', [proc.ExitStatus, sl.Count]);
       for i := 0 to sl.Count - 1 do
       begin
         line := sl[i];
@@ -56,7 +59,10 @@ begin
           Authors := Trim(Copy(line, Pos(':', line) + 1, MaxInt));
       end;
       Result := (Title <> '') or (Authors <> '');
+      LogInfoFmt('PDF metadata parsed: title="%s" authors="%s" result=%s',
+        [Title, Authors, BoolToStr(Result, True)]);
     except
+      on E: Exception do LogErrorFmt('pdfinfo failed: %s', [E.Message]);
       Result := False;
     end;
   finally
@@ -83,6 +89,7 @@ begin
   Authors := '';
   exe := FindDefaultExecutablePath('unzip');
   if exe = '' then exe := 'unzip';
+  LogInfoFmt('unzip tool: %s', [exe]);
   // list files
   proc := TProcess.Create(nil);
   sl := TStringList.Create;
@@ -97,8 +104,10 @@ begin
       proc.Parameters.Add(FileName);
       proc.Options := [poWaitOnExit, poUsePipes];
       proc.ShowWindow := swoHide;
+      LogDebugFmt('Running: %s -Z1 %s', [proc.Executable, FileName]);
       proc.Execute;
       sl.LoadFromStream(proc.Output);
+      LogDebugFmt('unzip -Z1 exit=%d, lines=%d', [proc.ExitStatus, sl.Count]);
       opfPath := '';
       for i := 0 to sl.Count - 1 do
       begin
@@ -110,6 +119,7 @@ begin
         end;
       end;
     except
+      on E: Exception do LogErrorFmt('unzip -Z1 failed: %s', [E.Message]);
       opfPath := '';
     end;
   finally
@@ -133,10 +143,12 @@ begin
       proc.Parameters.Add(opfPath);
       proc.Options := [poWaitOnExit, poUsePipes];
       proc.ShowWindow := swoHide;
+      LogDebugFmt('Running: %s -p %s %s', [proc.Executable, FileName, opfPath]);
       proc.Execute;
       stream.CopyFrom(proc.Output, 0);
       stream.Position := 0;
     except
+      on E: Exception do LogErrorFmt('unzip -p failed: %s', [E.Message]);
       stream.Size := 0;
     end;
   finally
@@ -147,6 +159,7 @@ begin
     try
       ReadXMLFile(xml, stream);
     except
+      on E: Exception do LogErrorFmt('ReadXML OPF failed: %s', [E.Message]);
       Exit(False);
     end;
     try
@@ -173,6 +186,8 @@ begin
     stream.Free;
   end;
   Result := (Title <> '') or (Authors <> '');
+  LogInfoFmt('EPUB metadata parsed: title="%s" authors="%s" result=%s',
+    [Title, Authors, BoolToStr(Result, True)]);
 end;
 
 function ExtractBookMetadata(const FileName: String; out Title, Authors: String): Boolean;

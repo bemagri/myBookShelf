@@ -26,3 +26,10 @@ On Fedora:
 On Arch:
 
 - `sudo pacman -S poppler unzip`
+
+## Logging
+
+- The app writes a debug log to your user config directory: `mybookshelf.log`.
+- Typical path on Linux: `~/.config/myBookShelf/mybookshelf.log`.
+- It records metadata extraction calls (pdfinfo/unzip) and cover generation calls (pdftoppm) with command lines, exit codes, and parsing results.
+- If covers/metadata still don’t work, please attach this log when filing an issue.
