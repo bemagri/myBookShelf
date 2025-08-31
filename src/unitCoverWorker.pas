@@ -190,7 +190,12 @@ begin
   if GWorker <> nil then
   begin
     GWorker.Terminate;
-    GWorker.WaitFor;
+    // Process synchronize calls while waiting to avoid potential deadlock
+    while not GWorker.Finished do
+    begin
+      Classes.CheckSynchronize(10);
+      Sleep(5);
+    end;
     GWorker := nil;
   end;
   if GPdfQueue <> nil then

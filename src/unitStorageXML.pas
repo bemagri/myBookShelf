@@ -49,7 +49,7 @@ var
 begin
   if (aList = nil) or (Parent = nil) then Exit;
 
-  if not FileExists(FileName) then
+  if not FileExistsUTF8(FileName) then
   begin
     // Nothing to load; ensure list is empty
     if aList.Count > 0 then

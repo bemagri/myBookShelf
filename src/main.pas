@@ -112,6 +112,10 @@ procedure TForm1.PanelBackgroundPaint({%H-}Sender: TObject);
 var w,h:Integer;
     x,y:Integer;
 begin
+  // Safety: if no tile or invalid size, skip custom painting
+  if (backgroundTile = nil) or (backgroundTile.Width <= 0) or (backgroundTile.Height <= 0) then
+    Exit;
+
   x:=0;
   y:=0;
   w:=backgroundTile.Width;
@@ -382,6 +386,8 @@ var
     book.Cover.Width:=coverWidth;
     book.Cover.Height:=coverHeight;
     book.Cover.Parent:=PanelBackground;
+    // Ensure the pre-scaled image matches the final cover size
+    book.EnsureScaledToCoverSize;
     CoverWorkerEnqueueBookIfMissing(book);
   end;
 
