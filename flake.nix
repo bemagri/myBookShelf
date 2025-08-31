@@ -36,6 +36,7 @@
           pkgs.fpc
           lazGtk
           pkgs.poppler_utils
+          pkgs.unzip
           pkgs.openssl
           pkgs.cacert
           pkgs.gdb
@@ -141,6 +142,8 @@
             wrapProgram $out/bin/myBookShelf \
               --set LCLWidgetType gtk2 \
               --set LD_LIBRARY_PATH "${gtkLibPath}:${pkgs.openssl.out}/lib" \
+              --prefix PATH : ${pkgs.poppler_utils}/bin \
+              --prefix PATH : ${pkgs.unzip}/bin \
               --set SSL_CERT_FILE ${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt \
               --set NIX_SSL_CERT_FILE ${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
             runHook postInstall
