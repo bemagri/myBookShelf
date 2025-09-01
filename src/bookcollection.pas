@@ -25,6 +25,8 @@ TBookCollection = class(TObject)
     function Count: Integer;
     procedure Clear;
     procedure SwapBooks(Source, Dest: Integer);
+    procedure SortByTitle;
+    procedure SortByAuthor;
     constructor Create;
     destructor Destroy; override;
 
@@ -77,6 +79,38 @@ end;
 procedure TBookCollection.SwapBooks(Source, Dest: Integer);
 begin
  mList.Move(Source,Dest);
+end;
+
+function CmpText(const A, B: String): Integer;
+var sA, sB: String;
+begin
+  sA := UTF8LowerCase(Trim(A));
+  sB := UTF8LowerCase(Trim(B));
+  if sA < sB then Exit(-1)
+  else if sA > sB then Exit(1)
+  else Exit(0);
+end;
+
+function CompareByTitle(Item1, Item2: Pointer): Integer;
+begin
+  Result := CmpText(TBook(Item1).Title, TBook(Item2).Title);
+end;
+
+function CompareByAuthor(Item1, Item2: Pointer): Integer;
+begin
+  Result := CmpText(TBook(Item1).Authors, TBook(Item2).Authors);
+end;
+
+procedure TBookCollection.SortByTitle;
+begin
+  if Assigned(mList) then
+    mList.Sort(@CompareByTitle);
+end;
+
+procedure TBookCollection.SortByAuthor;
+begin
+  if Assigned(mList) then
+    mList.Sort(@CompareByAuthor);
 end;
 
 constructor TBookCollection.Create;

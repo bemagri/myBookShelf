@@ -7,7 +7,7 @@ interface
 uses
   Classes, Sysutils, Fileutil, Forms, Controls, Graphics, Dialogs, ExtCtrls, LazFileUtils,
   Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType, IniFiles, unitSettingsDialog,
-  unitCoverWorker, unitStorageXML, unitMetadata;
+  unitCoverWorker, unitStorageXML, unitMetadata, LazUTF8;
 
 
 type
@@ -15,6 +15,7 @@ type
   { TForm1 }
   TForm1 = class(TForm)
     EditSearch: Tedit;
+    ComboSort: TComboBox;
     ButtonSettings: Timage;
     ImageToolBar: Timage;
     ButtonAdd: Timage;
@@ -29,7 +30,9 @@ type
     procedure ButtonSettingsMouseLeave({%H-}Sender: TObject);
     procedure EditSearchEnter({%H-}Sender: TObject);
     procedure EditSearchExit({%H-}Sender: TObject);
+    procedure EditSearchChange({%H-}Sender: TObject);
     procedure EditSearchKeyPress({%H-}Sender: TObject; var Key: Char);
+    procedure ComboSortChange({%H-}Sender: TObject);
     procedure FormClose({%H-}Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate({%H-}Sender: TObject);
     procedure FormKeyDown({%H-}Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
@@ -47,6 +50,7 @@ type
     mAdd,mAddHover,mGear,mGearHover:TPicture;
     LayoutTimer: TTimer;
     procedure LayoutTimerTick(Sender: TObject);
+    procedure ApplyFilterAndLayout;
   public
     { public declarations }
   end;
@@ -252,7 +256,9 @@ begin
  if isClosing then Exit;
  RearrangeBooksOnScreen();
 
- EditSearch.Left:=Width-EditSearch.Width-20;
+ EditSearch.Left := Width - EditSearch.Width - 20;
+ if Assigned(ComboSort) then
+   ComboSort.Left := EditSearch.Left - ComboSort.Width - 12;
 End;
 
 function TForm1.GetBookIndexAtPoint(X, Y: Integer): Integer;
@@ -588,3 +594,47 @@ initialization
 {$i mybookshelf.lrs}
 
 end.
+procedure TForm1.EditSearchChange({%H-}Sender: TObject);
+begin
+  ApplyFilterAndLayout;
+end;
+
+procedure TForm1.ComboSortChange({%H-}Sender: TObject);
+begin
+  case ComboSort.ItemIndex of
+    0: ; // Recently Added (keep current order)
+    1: bookList.SortByTitle;
+    2: bookList.SortByAuthor;
+  end;
+  ApplyFilterAndLayout;
+end;
+
+procedure TForm1.ApplyFilterAndLayout;
+var
+  q, lt, la: String;
+  i: Integer;
+  b: TBook;
+  showIt: Boolean;
+begin
+  if (bookList = nil) then Exit;
+  q := UTF8LowerCase(Trim(EditSearch.Text));
+  if (q = '') or (q = 'search...') then
+  begin
+    // show all
+    for i := 0 to bookList.Count - 1 do
+      if Assigned(bookList.Books[i].Cover) then
+        bookList.Books[i].Cover.Visible := True;
+  end
+  else
+  begin
+    for i := 0 to bookList.Count - 1 do
+    begin
+      b := bookList.Books[i];
+      lt := UTF8LowerCase(b.Title);
+      la := UTF8LowerCase(b.Authors);
+      showIt := (Pos(q, lt) > 0) or (Pos(q, la) > 0);
+      if Assigned(b.Cover) then b.Cover.Visible := showIt;
+    end;
+  end;
+  RearrangeBooksOnScreen();
+end;
