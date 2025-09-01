@@ -63,6 +63,7 @@ var
   dataXmlPath: String;
   booksDir: String;
   backgroundTile, toolbar: TPicture;
+  backgroundTileBmp: TBitmap;
   coverWidth, coverHeight: Integer;
   optCopyBooks, optRenameBooks, optExtractMeta: Boolean;
   isClosing: Boolean = False;
@@ -123,18 +124,18 @@ var w,h:Integer;
     x,y:Integer;
 begin
   // Safety: if no tile or invalid size, skip custom painting
-  if (backgroundTile = nil) or (backgroundTile.Width <= 0) or (backgroundTile.Height <= 0) then
+  if (backgroundTileBmp = nil) or (backgroundTileBmp.Width <= 0) or (backgroundTileBmp.Height <= 0) then
     Exit;
 
   x:=0;
   y:=0;
-  w:=backgroundTile.Width;
-  h:=backgroundTile.Height;
+  w:=backgroundTileBmp.Width;
+  h:=backgroundTileBmp.Height;
   while x < PanelBackground.Canvas.Width do
   begin
     while y < PanelBackground.Canvas.Height do
     begin
-      PanelBackground.Canvas.Draw(x,y,backgroundTile.Graphic);
+      PanelBackground.Canvas.Draw(x,y,backgroundTileBmp);
       y:=y+h;
     end;
     x:=x+w;
@@ -328,6 +329,7 @@ begin
   FreeAndNil(mGear);
   FreeAndNil(mGearHover);
   FreeAndNil(backgroundTile);
+  FreeAndNil(backgroundTileBmp);
   FreeAndNil(bookList);
   CloseAction := caFree;
 end;
@@ -494,8 +496,19 @@ begin
  ActiveControl:=PanelBackground;
 
 
- backgroundTile:=TPicture.Create;
- backgroundTile.LoadFromLazarusResource('shelf');
+  backgroundTile:=TPicture.Create;
+  backgroundTile.LoadFromLazarusResource('shelf');
+  // Create opaque bitmap tile to avoid GTK depth assertion when painting
+  backgroundTileBmp := TBitmap.Create;
+  try
+    backgroundTileBmp.Assign(backgroundTile.Graphic);
+    backgroundTileBmp.Transparent := False;
+    {$IFDEF LCLGTK2}
+    backgroundTileBmp.PixelFormat := pf24bit;
+    {$ENDIF}
+  except
+    FreeAndNil(backgroundTileBmp);
+  end;
 
  PanelBackground.DoubleBuffered := True; // reduce flicker
 
