@@ -456,14 +456,16 @@ end;
 
 procedure TForm1.EditSearchEnter({%H-}Sender: TObject);
 begin
-  // Use Text for TEdit, not Caption
-  EditSearch.Text := '';
+  // Only clear placeholder, keep any typed text intact
+  if EditSearch.Text = 'Search...' then
+    EditSearch.Text := '';
 end;
 
 procedure TForm1.EditSearchExit({%H-}Sender: TObject);
 begin
-  // Restore placeholder text when leaving the field
-  EditSearch.Text := 'Search...';
+  // Restore placeholder only if empty; do not wipe actual queries
+  if Trim(EditSearch.Text) = '' then
+    EditSearch.Text := 'Search...';
 end;
 
 procedure TForm1.EditSearchKeyPress({%H-}Sender: TObject; var Key: Char);
