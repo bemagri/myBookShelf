@@ -23,6 +23,9 @@ procedure CoverWorkerStart;
 { Stops the background worker and clears any pending books }
 procedure CoverWorkerStop;
 
+{ Remove a specific book from the pending queue (e.g., before deleting it) }
+procedure CoverWorkerRemoveBook(B: TBook);
+
 implementation
 
 type
@@ -171,6 +174,24 @@ begin
   end;
 end;
 
+procedure CoverWorkerRemoveBook(B: TBook);
+var
+  l: TList;
+  idx: Integer;
+begin
+  if (B = nil) or (GPdfQueue = nil) then Exit;
+  l := GPdfQueue.LockList;
+  try
+    idx := l.IndexOf(B);
+    if idx >= 0 then
+    begin
+      l.Delete(idx);
+      LogDebugFmt('Removed book from cover queue: %s', [B.FilePath]);
+    end;
+  finally
+    GPdfQueue.UnlockList;
+  end;
+end;
 procedure CoverWorkerEnqueueBookIfMissing(B: TBook);
 var
   l: TList;

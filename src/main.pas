@@ -564,21 +564,23 @@ var i:Integer;
     b:TBook;
 begin
 
- if Key = VK_DELETE then
- begin
-   for i:= bookList.Count-1 downto 0 do
-   begin
-    if bookList.Books[i].isSelected = True then
+  if Key = VK_DELETE then
+  begin
+    for i:= bookList.Count-1 downto 0 do
     begin
-       // Remove the cover control first (owned by PanelBackground), then free book
-       b := bookList.Books[i];
-       if Assigned(b.Cover) then b.Cover.Free;
-       bookList.Remove(b);
-       b.Free;
+      if bookList.Books[i].isSelected = True then
+      begin
+         // Remove the cover control first (owned by PanelBackground), then free book
+         b := bookList.Books[i];
+         // Ensure the background worker won't touch this book anymore
+         CoverWorkerRemoveBook(b);
+         if Assigned(b.Cover) then b.Cover.Free;
+         bookList.Remove(b);
+         b.Free;
+      end;
     end;
-   end;
-   RearrangeBooksOnScreen();
- end;
+    RearrangeBooksOnScreen();
+  end;
 end;
 
 

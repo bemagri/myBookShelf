@@ -246,6 +246,8 @@ begin
   mCover.OnMouseDown := @BookMouseDown;
   mCover.OnDblClick  := @BookDoubleClick;
   mCover.Cursor    := crHandPoint;
+  // Enable drag-and-drop reordering (handled by PanelBackground handlers)
+  mCover.DragMode  := dmAutomatic;
   // Back-reference for selection management among sibling controls
   mCover.Tag       := PtrInt(Self);
 
