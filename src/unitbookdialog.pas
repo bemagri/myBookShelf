@@ -239,7 +239,15 @@ End;
 
 procedure Tbookeditdialog.EditFilePathChange(Sender: Tobject);
 begin
-
+  // If user edits the image path manually, refresh the preview
+  if (Sender = EditImagePath) and FileExists(EditImagePath.Text) then
+  begin
+    try
+      ImageBookCover.Picture.LoadFromFile(EditImagePath.Text);
+    except
+      // ignore preview errors
+    end;
+  end;
 End;
 
 procedure Tbookeditdialog.Buttonsaveclick(Sender: Tobject);

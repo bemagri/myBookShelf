@@ -76,9 +76,9 @@ object BookEditDialog: TBookEditDialog
   end
   object Panel1: TPanel
     Left = 24
-    Height = 250
+    Height = 260
     Top = 33
-    Width = 130
+    Width = 140
     BorderWidth = 2
     BorderStyle = bsSingle
     ClientHeight = 250

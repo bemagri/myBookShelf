@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectSession>
-    <Version Value="12"/>
+    <Version Value="10"/>
     <BuildModes Active="Default"/>
     <Units Count="17">
       <Unit0>
         <Filename Value="myBookShelf.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="72" Y="10"/>
         <UsageCount Value="70"/>
-        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="main.pas"/>
@@ -135,26 +134,22 @@
       </Unit15>
       <Unit16>
         <Filename Value="../../../Downloads/BigNumbers-master/Source/Velthuis.BigIntegers.pas"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="-1"/>
+        <IsVisibleTab Value="True"/>
         <TopLine Value="31"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
       </Unit16>
     </Units>
     <JumpHistory HistoryIndex="-1"/>
-    <RunParams>
-      <FormatVersion Value="2"/>
-      <Modes ActiveMode="default"/>
-    </RunParams>
   </ProjectSession>
   <Debugging>
-    <Watches>
-      <Item>
+    <Watches Count="2">
+      <Item1>
         <Expression Value="mCover"/>
-      </Item>
-      <Item>
+      </Item1>
+      <Item2>
         <Expression Value="mFilePath"/>
-      </Item>
+      </Item2>
     </Watches>
   </Debugging>
 </CONFIG>
