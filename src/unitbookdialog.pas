@@ -264,13 +264,12 @@ begin
 
   // Ensure UI reflects any new cover choice
   mBook.EnsureScaledToCoverSize;
-
-  Close;
+  ModalResult := mrOK;
 End;
 
 procedure Tbookeditdialog.Buttoncancelclick(Sender: Tobject);
 begin
-  Close;
+  ModalResult := mrCancel;
 End;
 
 procedure Tbookeditdialog.Loadbook(Book: Tbook);

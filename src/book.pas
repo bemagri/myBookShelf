@@ -97,7 +97,10 @@ begin
     try
       dlg.LoadBook(Self);
       if dlg.ShowModal = mrOK then
+      begin
         EnsureScaledToCoverSize;
+        if Assigned(mCover) then mCover.Invalidate;
+      end;
     finally
       dlg.Free;
     end;
