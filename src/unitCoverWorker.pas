@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Process, LCLIntf, Graphics, Math,
   IntfGraphics, FPImage, FPReadPNG, FPReadJPEG, GraphType, LazCanvas,
-  Book, BookCollection, FileUtil, unitLog;
+  Book, BookCollection, FileUtil, unitLog, unitAppEvents;
 
 { Call this once after loading your data: it scans the list and enqueues
   only the PDFs that still use the generic cover (i.e. ImagePath=''). }
@@ -317,6 +317,8 @@ begin
     begin
       FApplyBook.ImagePath := FApplyImg;  // triggers SetImage + pre-scale
       FApplyBook.EnsureScaledToCoverSize; // in case layout changed
+      // Persist cover change immediately
+      NotifyBooksChanged;
     end;
   except
     // ignore UI exceptions, keep worker going

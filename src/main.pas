@@ -112,7 +112,7 @@ begin
  PanelBackground.Invalidate;
 end;
 
-procedure TForm1.PanelBackgroundDragDrop({%H-}Sender, Source: TObject; X, Y: Integer);
+  procedure TForm1.PanelBackgroundDragDrop({%H-}Sender, Source: TObject; X, Y: Integer);
 var src,dest:integer;
 begin
  src:=GetCoverIndex(TImage(Source));
@@ -121,6 +121,8 @@ begin
    UnselectAll;
    // After changing book order, recalculate layout so covers move immediately
    RearrangeBooksOnScreen();
+   // Persist order change
+   NotifyBooksChanged;
 end;
 
 procedure TForm1.PanelBackgroundDragOver({%H-}Sender, {%H-}Source: TObject; {%H-}X,
@@ -433,6 +435,8 @@ begin
 
       CoverWorkerStart;
       RearrangeBooksOnScreen();
+      // Persist additions immediately
+      NotifyBooksChanged;
     finally
       files.Free;
     end;
@@ -627,6 +631,8 @@ begin
       end;
     end;
     RearrangeBooksOnScreen();
+    // Persist deletions immediately
+    NotifyBooksChanged;
   end;
 end;
 
