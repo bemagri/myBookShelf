@@ -52,6 +52,8 @@ procedure SetPdfCoverGenerationEnabled(AEnabled: Boolean);
 
 implementation
 
+uses UnitBookDialog;
+
 var
   gPdfCoverEnabled: Boolean = True;
 
@@ -81,12 +83,27 @@ end;
 {------------------------------------------------------------------------------}
 { Mouse handlers (hook up in constructor)                                      }
 {------------------------------------------------------------------------------}
-procedure TBook.BookMouseDown({%H-}Sender: TObject; {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
+procedure TBook.BookMouseDown({%H-}Sender: TObject; Button: TMouseButton; Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
 var
   i: Integer;
   ctrl: TControl;
   otherBook: TBook;
+  dlg: TBookEditDialog;
 begin
+  // Right-click: open edit dialog immediately
+  if Button = mbRight then
+  begin
+    dlg := TBookEditDialog.Create(nil);
+    try
+      dlg.LoadBook(Self);
+      if dlg.ShowModal = mrOK then
+        EnsureScaledToCoverSize;
+    finally
+      dlg.Free;
+    end;
+    Exit;
+  end;
+
   // Exclusive select unless Ctrl is held; toggle in Ctrl mode
   if (mCover.Parent <> nil) and not (ssCtrl in Shift) then
   begin
