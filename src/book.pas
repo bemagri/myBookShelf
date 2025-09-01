@@ -52,7 +52,27 @@ procedure SetPdfCoverGenerationEnabled(AEnabled: Boolean);
 
 implementation
 
-uses UnitBookDialog;
+uses UnitBookDialog, Forms;
+
+procedure OpenBookEditDialogAsync(Data: PtrInt);
+var
+  b: TBook;
+  dlg: TBookEditDialog;
+begin
+  b := TBook(Data);
+  if b = nil then Exit;
+  dlg := TBookEditDialog.Create(nil);
+  try
+    dlg.LoadBook(b);
+    if dlg.ShowModal = mrOK then
+    begin
+      b.EnsureScaledToCoverSize;
+      if Assigned(b.Cover) then b.Cover.Invalidate;
+    end;
+  finally
+    dlg.Free;
+  end;
+end;
 
 var
   gPdfCoverEnabled: Boolean = True;
@@ -88,22 +108,12 @@ var
   i: Integer;
   ctrl: TControl;
   otherBook: TBook;
-  dlg: TBookEditDialog;
 begin
   // Right-click: open edit dialog immediately
   if Button = mbRight then
   begin
-    dlg := TBookEditDialog.Create(nil);
-    try
-      dlg.LoadBook(Self);
-      if dlg.ShowModal = mrOK then
-      begin
-        EnsureScaledToCoverSize;
-        if Assigned(mCover) then mCover.Invalidate;
-      end;
-    finally
-      dlg.Free;
-    end;
+    // Defer to message queue to avoid re-entrancy during mouse handling/drag
+    Application.QueueAsyncCall(@OpenBookEditDialogAsync, PtrInt(Self));
     Exit;
   end;
 
