@@ -257,8 +257,13 @@ begin
   mbook.Title:=EditTitle.Text;
   mBook.Authors:=EditAuthors.Text;
   mBook.ISBN:=editisbn.Text;
-  mBook.ImagePath:=editimagepath.Text;
+  // Set file path first (auto-cover logic may look for sibling images)
   mBook.FilePath:=EditFilePath.Text;
+  // Then set explicit image path to ensure it takes precedence
+  mBook.ImagePath:=editimagepath.Text;
+
+  // Ensure UI reflects any new cover choice
+  mBook.EnsureScaledToCoverSize;
 
   Close;
 End;

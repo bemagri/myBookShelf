@@ -227,7 +227,10 @@ begin
   if mFilePath = AValue then Exit;
   mFilePath := AValue;
 
-  // first try sibling images
+  // If a cover image was already chosen (manually or previously set), don't override it
+  if Trim(mImagePath) <> '' then Exit;
+
+  // Otherwise, try sibling images next to the book file
   SetImage(ChangeFileExt(AValue, '.png'));
   if mImagePath = '' then
     SetImage(ChangeFileExt(AValue, '.jpg'));
