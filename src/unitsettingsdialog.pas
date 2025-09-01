@@ -138,11 +138,17 @@ end;
 
 procedure TSettingsDialog.LoadSettings;
 var ini: TIniFile;
+    defDir: String;
 begin
   ini := TIniFile.Create(ConfigPath);
   try
-    edtDataDir.Text := ini.ReadString('general', 'data_dir', '');
+    defDir := ConfigDir;
+    edtDataDir.Text := ini.ReadString('general', 'data_dir', defDir);
+    if Trim(edtDataDir.Text) = '' then edtDataDir.Text := defDir;
+
     edtBooksDir.Text := ini.ReadString('general', 'books_dir', edtDataDir.Text);
+    if Trim(edtBooksDir.Text) = '' then edtBooksDir.Text := edtDataDir.Text;
+
     chkCopyBooks.Checked := ini.ReadBool('general', 'copy_books', True);
     chkRenameBooks.Checked := ini.ReadBool('general', 'rename_books', True);
     chkMeta.Checked := ini.ReadBool('general', 'extract_metadata', True);
@@ -154,11 +160,20 @@ end;
 
 procedure TSettingsDialog.SaveSettings;
 var ini: TIniFile;
+    dataDir, booksDir: String;
 begin
   ini := TIniFile.Create(ConfigPath);
   try
-    ini.WriteString('general', 'data_dir', edtDataDir.Text);
-    ini.WriteString('general', 'books_dir', edtBooksDir.Text);
+    dataDir := Trim(edtDataDir.Text);
+    if dataDir = '' then dataDir := ConfigDir;
+    if not DirectoryExistsUTF8(dataDir) then CreateDirUTF8(dataDir);
+    ini.WriteString('general', 'data_dir', dataDir);
+
+    booksDir := Trim(edtBooksDir.Text);
+    if booksDir = '' then booksDir := dataDir;
+    if not DirectoryExistsUTF8(booksDir) then CreateDirUTF8(booksDir);
+    ini.WriteString('general', 'books_dir', booksDir);
+
     ini.WriteBool('general', 'copy_books', chkCopyBooks.Checked);
     ini.WriteBool('general', 'rename_books', chkRenameBooks.Checked);
     ini.WriteBool('general', 'extract_metadata', chkMeta.Checked);
