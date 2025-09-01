@@ -51,6 +51,7 @@ type
     LayoutTimer: TTimer;
     procedure LayoutTimerTick(Sender: TObject);
     procedure ApplyFilterAndLayout;
+    function AppConfigPath: String;
   public
     { public declarations }
   end;
@@ -85,6 +86,11 @@ procedure TForm1.LayoutTimerTick(Sender: TObject);
 begin
   LayoutTimer.Enabled := False;   // one-shot
   RearrangeBooksOnScreen;
+end;
+
+function TForm1.AppConfigPath: String;
+begin
+  Result := IncludeTrailingPathDelimiter(GetAppConfigDirUTF8(False)) + 'config.ini';
 end;
 
 procedure TForm1.PanelBackgroundClick({%H-}Sender: TObject);
@@ -559,6 +565,19 @@ end;
 
  RearrangeBooksOnScreen();
 
+ // Restore sort selection and apply
+ try
+   ini := TIniFile.Create(AppConfigPath);
+   try
+     ComboSort.ItemIndex := ini.ReadInteger('ui','sort_by', 0);
+   finally
+     ini.Free;
+   end;
+   ComboSortChange(nil);
+ except
+   // ignore
+ end;
+
  // Background: generate covers only where still generic
  CoverWorkerEnqueueMissingFromBookList(bookList);
  CoverWorkerStart;
@@ -590,10 +609,6 @@ begin
 end;
 
 
-initialization
-{$i mybookshelf.lrs}
-
-end.
 procedure TForm1.EditSearchChange({%H-}Sender: TObject);
 begin
   ApplyFilterAndLayout;
@@ -605,6 +620,16 @@ begin
     0: ; // Recently Added (keep current order)
     1: bookList.SortByTitle;
     2: bookList.SortByAuthor;
+  end;
+  // Persist selection
+  try
+    with TIniFile.Create(AppConfigPath) do
+    try
+      WriteInteger('ui', 'sort_by', ComboSort.ItemIndex);
+    finally
+      Free;
+    end;
+  except
   end;
   ApplyFilterAndLayout;
 end;
@@ -638,3 +663,8 @@ begin
   end;
   RearrangeBooksOnScreen();
 end;
+
+initialization
+{$i mybookshelf.lrs}
+
+end.

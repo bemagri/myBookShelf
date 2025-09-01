@@ -35,7 +35,7 @@ end;
 implementation
 
 uses
-  unitCoverWorker;
+  unitCoverWorker, LazUTF8;
 
 { TBookCollection }
 
