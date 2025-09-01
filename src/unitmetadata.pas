@@ -7,17 +7,39 @@ interface
 uses
   Classes, SysUtils, FileUtil;
 
-// Extract basic metadata (title, authors) from a book file.
+// Extract basic metadata (title, authors, isbn) from a book file.
 // Supports PDF (via pdfinfo) and EPUB (via unzip and parsing the OPF file).
 // Returns True if any metadata was found.
-function ExtractBookMetadata(const FileName: String; out Title, Authors: String): Boolean;
+function ExtractBookMetadata(const FileName: String; out Title, Authors, Isbn: String): Boolean;
 
 implementation
 
 uses
   Process, DOM, XMLRead, LazUTF8, StrUtils, LazFileUtils, unitLog;
 
-function ExtractPDFMetadata(const FileName: String; out Title, Authors: String): Boolean;
+function NormalizeISBN(const S: String): String;
+var
+  i: Integer; ch: Char; acc: String; src: String;
+begin
+  // strip common prefixes
+  src := StringReplace(S, 'urn:isbn:', '', [rfIgnoreCase]);
+  src := StringReplace(src, 'isbn:', '', [rfIgnoreCase]);
+  src := StringReplace(src, 'isbn', '', [rfIgnoreCase]);
+  acc := '';
+  for i := 1 to Length(src) do
+  begin
+    ch := src[i];
+    if (ch >= '0') and (ch <= '9') then acc += ch
+    else if (ch = 'x') or (ch = 'X') then acc += ch
+    else if (ch = '-') or (ch = ' ') then Continue
+    else if (ch = #9) then Continue
+    else ;
+  end;
+  if (Length(acc) = 10) and (acc[Length(acc)] in ['x','X']) then acc[Length(acc)] := 'X';
+  if (Length(acc) = 13) or (Length(acc) = 10) then Result := acc else Result := '';
+end;
+
+function ExtractPDFMetadata(const FileName: String; out Title, Authors, Isbn: String): Boolean;
 var
   proc: TProcess;
   sl: TStringList;
@@ -29,6 +51,7 @@ begin
   Result := False;
   Title := '';
   Authors := '';
+  Isbn := '';
   exe := FindDefaultExecutablePath('pdfinfo');
   if exe = '' then exe := 'pdfinfo';
   LogInfoFmt('pdfinfo tool: %s', [exe]);
@@ -57,10 +80,12 @@ begin
           Title := Trim(Copy(line, 7, MaxInt));
         if (Authors = '') and (AnsiStartsStr('Author:', line) or AnsiStartsStr('Authors:', line)) then
           Authors := Trim(Copy(line, Pos(':', line) + 1, MaxInt));
+        if Isbn = '' then
+          Isbn := NormalizeISBN(line);
       end;
-      Result := (Title <> '') or (Authors <> '');
-      LogInfoFmt('PDF metadata parsed: title="%s" authors="%s" result=%s',
-        [Title, Authors, BoolToStr(Result, True)]);
+      Result := (Title <> '') or (Authors <> '') or (Isbn <> '');
+      LogInfoFmt('PDF metadata parsed: title="%s" authors="%s" isbn="%s" result=%s',
+        [Title, Authors, Isbn, BoolToStr(Result, True)]);
     except
       on E: Exception do
       begin
@@ -75,7 +100,7 @@ begin
   end;
 end;
 
-function ExtractEPUBMetadata(const FileName: String; out Title, Authors: String): Boolean;
+function ExtractEPUBMetadata(const FileName: String; out Title, Authors, Isbn: String): Boolean;
 var
   proc: TProcess;
   sl: TStringList;
@@ -90,6 +115,7 @@ begin
   Result := False;
   Title := '';
   Authors := '';
+  Isbn := '';
   exe := FindDefaultExecutablePath('unzip');
   if exe = '' then exe := 'unzip';
   LogInfoFmt('unzip tool: %s', [exe]);
@@ -189,6 +215,12 @@ begin
             if Authors <> '' then Authors := Authors + ', ';
             Authors := Authors + UTF8Encode(Trim(node.TextContent));
           end;
+          if (lname = 'dc:identifier') or (lname = 'identifier') then
+          begin
+            if Isbn = '' then Isbn := NormalizeISBN(UTF8Encode(Trim(node.TextContent)));
+            if (Isbn = '') and (node is TDOMElement) then
+              Isbn := NormalizeISBN(UTF8Encode(TDOMElement(node).GetAttribute('opf:scheme')));
+          end;
         end;
       end;
     finally
@@ -197,24 +229,25 @@ begin
   finally
     stream.Free;
   end;
-  Result := (Title <> '') or (Authors <> '');
-  LogInfoFmt('EPUB metadata parsed: title="%s" authors="%s" result=%s',
-    [Title, Authors, BoolToStr(Result, True)]);
+  Result := (Title <> '') or (Authors <> '') or (Isbn <> '');
+  LogInfoFmt('EPUB metadata parsed: title="%s" authors="%s" isbn="%s" result=%s',
+    [Title, Authors, Isbn, BoolToStr(Result, True)]);
 end;
 
-function ExtractBookMetadata(const FileName: String; out Title, Authors: String): Boolean;
+function ExtractBookMetadata(const FileName: String; out Title, Authors, Isbn: String): Boolean;
 var
   ext: String;
 begin
   ext := LowerCase(ExtractFileExt(FileName));
   if ext = '.pdf' then
-    Result := ExtractPDFMetadata(FileName, Title, Authors)
+    Result := ExtractPDFMetadata(FileName, Title, Authors, Isbn)
   else if ext = '.epub' then
-    Result := ExtractEPUBMetadata(FileName, Title, Authors)
+    Result := ExtractEPUBMetadata(FileName, Title, Authors, Isbn)
   else
   begin
     Title := '';
     Authors := '';
+    Isbn := '';
     Result := False;
   end;
 end;

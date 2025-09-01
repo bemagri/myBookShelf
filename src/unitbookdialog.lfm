@@ -31,9 +31,19 @@ object BookEditDialog: TBookEditDialog
     Left = 329
     Height = 29
     Top = 128
-    Width = 400
+    Width = 375
     TabOrder = 2
     Text = 'ISBN'
+  end
+  object ButtonLookup: TBitBtn
+    Left = 710
+    Height = 29
+    Top = 128
+    Width = 85
+    Caption = '&Lookup'
+    OnClick = ButtonLookupClick
+    Anchors = [akTop, akRight]
+    TabOrder = 3
   end
   object EditFilePath: TEdit
     Left = 329
@@ -41,7 +51,7 @@ object BookEditDialog: TBookEditDialog
     Top = 176
     Width = 463
     OnChange = EditFilePathChange
-    TabOrder = 3
+    TabOrder = 4
     Text = 'File Path'
   end
   object ButtonSave: TBitBtn
@@ -52,7 +62,7 @@ object BookEditDialog: TBookEditDialog
     Caption = '&Save'
     OnClick = ButtonSaveClick
     Anchors = [akRight, akBottom]
-    TabOrder = 4
+    TabOrder = 5
   end
   object ButtonCancel: TBitBtn
     Left = 716
@@ -62,23 +72,23 @@ object BookEditDialog: TBookEditDialog
     Caption = '&Cancel'
     OnClick = ButtonCancelClick
     Anchors = [akRight, akBottom]
-    TabOrder = 5
+    TabOrder = 6
   end
   object Panel1: TPanel
     Left = 24
-    Height = 220
+    Height = 250
     Top = 33
-    Width = 182
+    Width = 130
     BorderWidth = 2
     BorderStyle = bsSingle
-    ClientHeight = 218
-    ClientWidth = 180
-    TabOrder = 6
+    ClientHeight = 250
+    ClientWidth = 130
+    TabOrder = 7
     object ImageBookCover: TImage
       Left = 0
-      Height = 224
+      Height = 250
       Top = 0
-      Width = 182
+      Width = 130
       OnClick = ImageBookCoverClick
       Cursor = crHandPoint
       ShowHint = True
@@ -89,8 +99,8 @@ object BookEditDialog: TBookEditDialog
   object ButtonChangeCover: TButton
     Left = 24
     Height = 28
-    Top = 264
-    Width = 182
+    Top = 270
+    Width = 130
     Caption = 'Change Cover...'
     OnClick = ImageBookCoverClick
     TabOrder = 8
@@ -101,7 +111,7 @@ object BookEditDialog: TBookEditDialog
     Top = 224
     Width = 463
     OnChange = EditFilePathChange
-    TabOrder = 7
+    TabOrder = 9
     Text = 'Image Path'
   end
   object Label1: TLabel

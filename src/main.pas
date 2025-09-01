@@ -63,7 +63,6 @@ var
   dataXmlPath: String;
   booksDir: String;
   backgroundTile, toolbar: TPicture;
-  backgroundTileBmp: TBitmap;
   coverWidth, coverHeight: Integer;
   optCopyBooks, optRenameBooks, optExtractMeta: Boolean;
   isClosing: Boolean = False;
@@ -124,18 +123,18 @@ var w,h:Integer;
     x,y:Integer;
 begin
   // Safety: if no tile or invalid size, skip custom painting
-  if (backgroundTileBmp = nil) or (backgroundTileBmp.Width <= 0) or (backgroundTileBmp.Height <= 0) then
+  if (backgroundTile = nil) or (backgroundTile.Width <= 0) or (backgroundTile.Height <= 0) then
     Exit;
 
   x:=0;
   y:=0;
-  w:=backgroundTileBmp.Width;
-  h:=backgroundTileBmp.Height;
+  w:=backgroundTile.Width;
+  h:=backgroundTile.Height;
   while x < PanelBackground.Canvas.Width do
   begin
     while y < PanelBackground.Canvas.Height do
     begin
-      PanelBackground.Canvas.Draw(x,y,backgroundTileBmp);
+      PanelBackground.Canvas.Draw(x,y,backgroundTile.Graphic);
       y:=y+h;
     end;
     x:=x+w;
@@ -329,7 +328,6 @@ begin
   FreeAndNil(mGear);
   FreeAndNil(mGearHover);
   FreeAndNil(backgroundTile);
-  FreeAndNil(backgroundTileBmp);
   FreeAndNil(bookList);
   CloseAction := caFree;
 end;
@@ -340,7 +338,7 @@ var
   i    : Integer;
   src  : String;
   dest : String;
-  fname,title,authors,ext : String;
+  fname,title,authors,ext,isbn : String;
   files: TStringList;
 
   function CleanName(const s:String):String;
@@ -358,8 +356,9 @@ var
     dest := src;
     title := '';
     authors := '';
+    isbn := ''; 
     if optExtractMeta then
-      ExtractBookMetadata(src, title, authors);
+      ExtractBookMetadata(src, title, authors, isbn);
 
     if optCopyBooks then
     begin
@@ -393,6 +392,7 @@ var
       if title <> '' then book.Title := title
       else book.Title := ChangeFileExt(ExtractFileName(dest), '');
       if authors <> '' then book.Authors := authors;
+      if isbn <> '' then book.isbn := isbn;
     end
     else
       book.Title := ChangeFileExt(ExtractFileName(dest), '');
@@ -496,19 +496,8 @@ begin
  ActiveControl:=PanelBackground;
 
 
-  backgroundTile:=TPicture.Create;
-  backgroundTile.LoadFromLazarusResource('shelf');
-  // Create opaque bitmap tile to avoid GTK depth assertion when painting
-  backgroundTileBmp := TBitmap.Create;
-  try
-    backgroundTileBmp.Assign(backgroundTile.Graphic);
-    backgroundTileBmp.Transparent := False;
-    {$IFDEF LCLGTK2}
-    backgroundTileBmp.PixelFormat := pf24bit;
-    {$ENDIF}
-  except
-    FreeAndNil(backgroundTileBmp);
-  end;
+ backgroundTile:=TPicture.Create;
+ backgroundTile.LoadFromLazarusResource('shelf');
 
  PanelBackground.DoubleBuffered := True; // reduce flicker
 

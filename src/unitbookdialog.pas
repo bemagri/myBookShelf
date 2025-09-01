@@ -62,15 +62,6 @@ procedure Tbookeditdialog.Formcreate(Sender: Tobject);
 begin
   ActiveControl:=ButtonSave;
 
-  ButtonLookup := TButton.Create(Self);
-  ButtonLookup.Parent := Self;
-  ButtonLookup.Caption := 'Lookup';
-  ButtonLookup.Top := EditISBN.Top;
-  ButtonLookup.Left := EditISBN.Left + EditISBN.Width + 8;
-  ButtonLookup.Height := EditISBN.Height;
-  ButtonLookup.Anchors := [akTop, akRight];
-  ButtonLookup.OnClick := @ButtonLookupClick;
-
   // Make it obvious the cover can be changed
   ImageBookCover.Cursor := crHandPoint;
   ImageBookCover.ShowHint := True;
@@ -260,7 +251,7 @@ begin
   // Set file path first (auto-cover logic may look for sibling images)
   mBook.FilePath:=EditFilePath.Text;
   // Then set explicit image path to ensure it takes precedence
-  mBook.ImagePath:=editimagepath.Text;
+  mBook.ImagePath:=EditImagePath.Text;
 
   // Ensure UI reflects any new cover choice
   mBook.EnsureScaledToCoverSize;
