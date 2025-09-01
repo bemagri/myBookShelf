@@ -39,6 +39,84 @@ begin
   if (Length(acc) = 13) or (Length(acc) = 10) then Result := acc else Result := '';
 end;
 
+function TryExtractIsbnFromPdfText(const FileName: String): String;
+var
+  proc: TProcess;
+  env: TStringList;
+  exe: String;
+  outStream: TStringStream;
+  text, lower: String;
+  i, startPos, endPos: SizeInt;
+  window: String;
+begin
+  Result := '';
+  exe := FindDefaultExecutablePath('pdftotext');
+  if exe = '' then exe := 'pdftotext';
+  LogInfoFmt('pdftotext tool: %s', [exe]);
+
+  proc := TProcess.Create(nil);
+  env := TStringList.Create;
+  outStream := TStringStream.Create('');
+  try
+    try
+      env.Add('LC_ALL=C'); env.Add('LANG=C');
+      env.Add('PATH=' + GetEnvironmentVariable('PATH'));
+      proc.Environment := env;
+      proc.Executable := exe;
+      // Extract first 5 pages to stdout
+      proc.Parameters.Add('-f'); proc.Parameters.Add('1');
+      proc.Parameters.Add('-l'); proc.Parameters.Add('5');
+      proc.Parameters.Add('-nopgbrk');
+      proc.Parameters.Add('-layout');
+      proc.Parameters.Add(FileName);
+      proc.Parameters.Add('-');
+      proc.Options := [poWaitOnExit, poUsePipes];
+      proc.ShowWindow := swoHide;
+      LogDebugFmt('Running: %s -f 1 -l 5 -nopgbrk -layout %s -', [proc.Executable, FileName]);
+      proc.Execute;
+      outStream.CopyFrom(proc.Output, 0);
+      text := outStream.DataString;
+      lower := UTF8LowerCase(text);
+      // Heuristic: search for 'isbn' and decode nearby token
+      i := 1;
+      while i <= Length(lower) - 3 do
+      begin
+        if Copy(lower, i, 4) = 'isbn' then
+        begin
+          startPos := i;
+          endPos := i + 64; // search window after 'isbn'
+          if endPos > Length(text) then endPos := Length(text);
+          window := Copy(text, startPos, endPos - startPos + 1);
+          Result := NormalizeISBN(window);
+          if Result <> '' then Break;
+        end;
+        Inc(i);
+      end;
+      if (Result = '') then
+      begin
+        // Fallback: scan text in chunks for any isbn-like token
+        i := 1;
+        while i <= Length(text) do
+        begin
+          endPos := i + 32;
+          if endPos > Length(text) then endPos := Length(text);
+          window := Copy(text, i, endPos - i + 1);
+          Result := NormalizeISBN(window);
+          if Result <> '' then Break;
+          Inc(i, 16);
+        end;
+      end;
+      LogInfoFmt('pdftotext ISBN guess: "%s"', [Result]);
+    except
+      on E: Exception do LogErrorFmt('pdftotext failed: %s', [E.Message]);
+    end;
+  finally
+    outStream.Free;
+    env.Free;
+    proc.Free;
+  end;
+end;
+
 function ExtractPDFMetadata(const FileName: String; out Title, Authors, Isbn: String): Boolean;
 var
   proc: TProcess;
@@ -83,6 +161,9 @@ begin
         if Isbn = '' then
           Isbn := NormalizeISBN(line);
       end;
+      // If not found in pdfinfo, try extracting from the first pages text
+      if Isbn = '' then
+        Isbn := TryExtractIsbnFromPdfText(FileName);
       Result := (Title <> '') or (Authors <> '') or (Isbn <> '');
       LogInfoFmt('PDF metadata parsed: title="%s" authors="%s" isbn="%s" result=%s',
         [Title, Authors, Isbn, BoolToStr(Result, True)]);

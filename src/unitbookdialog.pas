@@ -28,7 +28,7 @@ type
     Label5: Tlabel;
     Opendialog1: Topendialog;
     Panel1: Tpanel;
-    ButtonLookup:TButton;
+    ButtonLookup: TBitBtn;
     procedure Buttoncancelclick(Sender: Tobject);
     procedure Buttonsaveclick(Sender: Tobject);
     procedure EditFilePathChange(Sender: Tobject);
@@ -265,13 +265,24 @@ End;
 
 procedure Tbookeditdialog.Loadbook(Book: Tbook);
 begin
-  mBook:=Book;
-  ImageBookCover.Picture:=mBook.Cover.Picture;
-  EditFilePath.Text:=mBook.FilePath;
-  EditTitle.Text:=mBook.Title;
-  EditAuthors.Text:=mBook.Authors;
-  EditISBN.Text:=mBook.ISBN;
-  EditImagePath.Text:=mBook.ImagePath;
+  mBook := Book;
+  // Prefer original image if available for best preview quality
+  if (Trim(mBook.ImagePath) <> '') and FileExists(mBook.ImagePath) then
+  begin
+    try
+      ImageBookCover.Picture.LoadFromFile(mBook.ImagePath);
+    except
+      ImageBookCover.Picture.Assign(mBook.Cover.Picture);
+    end;
+  end
+  else
+    ImageBookCover.Picture.Assign(mBook.Cover.Picture);
+
+  EditFilePath.Text := mBook.FilePath;
+  EditTitle.Text := mBook.Title;
+  EditAuthors.Text := mBook.Authors;
+  EditISBN.Text := mBook.ISBN;
+  EditImagePath.Text := mBook.ImagePath;
 end;
 
 end.

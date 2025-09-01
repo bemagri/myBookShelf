@@ -89,11 +89,14 @@ object BookEditDialog: TBookEditDialog
       Height = 250
       Top = 0
       Width = 130
+      Align = alClient
+      Center = True
+      Proportional = True
       OnClick = ImageBookCoverClick
       Cursor = crHandPoint
       ShowHint = True
       Hint = 'Click to change cover'
-      Stretch = True
+      Stretch = False
     end
   end
   object ButtonChangeCover: TButton
