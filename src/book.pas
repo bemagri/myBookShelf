@@ -34,6 +34,7 @@ type
     procedure BookMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure BookDoubleClick(Sender: TObject);
     procedure BookCoverPaint(Sender: TObject);
+    procedure OpenEditDialogAsync(Data: PtrInt);
 
     // Call this after you change mCover.Width/Height (layout/resizes)
     procedure EnsureScaledToCoverSize;
@@ -54,20 +55,17 @@ implementation
 
 uses UnitBookDialog, Forms;
 
-procedure OpenBookEditDialogAsync(Data: PtrInt);
+procedure TBook.OpenEditDialogAsync({%H-}Data: PtrInt);
 var
-  b: TBook;
   dlg: TBookEditDialog;
 begin
-  b := TBook(Data);
-  if b = nil then Exit;
   dlg := TBookEditDialog.Create(nil);
   try
-    dlg.LoadBook(b);
+    dlg.LoadBook(Self);
     if dlg.ShowModal = mrOK then
     begin
-      b.EnsureScaledToCoverSize;
-      if Assigned(b.Cover) then b.Cover.Invalidate;
+      EnsureScaledToCoverSize;
+      if Assigned(mCover) then mCover.Invalidate;
     end;
   finally
     dlg.Free;
@@ -113,7 +111,7 @@ begin
   if Button = mbRight then
   begin
     // Defer to message queue to avoid re-entrancy during mouse handling/drag
-    Application.QueueAsyncCall(@OpenBookEditDialogAsync, PtrInt(Self));
+    Application.QueueAsyncCall(@OpenEditDialogAsync, 0);
     Exit;
   end;
 
