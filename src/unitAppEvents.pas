@@ -5,7 +5,8 @@ unit unitAppEvents;
 interface
 
 type
-  TNotifyProc = procedure;
+  // Use "of object" so methods (e.g., TForm1.SaveBooksNow) can be assigned
+  TNotifyProc = procedure of object;
 
 var
   OnBooksChanged: TNotifyProc = nil;
@@ -21,4 +22,3 @@ begin
 end;
 
 end.
-
