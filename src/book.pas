@@ -53,7 +53,7 @@ procedure SetPdfCoverGenerationEnabled(AEnabled: Boolean);
 
 implementation
 
-uses UnitBookDialog, Forms;
+uses UnitBookDialog, Forms, unitAppEvents;
 
 procedure TBook.OpenEditDialogAsync({%H-}Data: PtrInt);
 var
@@ -66,6 +66,8 @@ begin
     begin
       EnsureScaledToCoverSize;
       if Assigned(mCover) then mCover.Invalidate;
+      // Persist changes immediately
+      NotifyBooksChanged;
     end;
   finally
     dlg.Free;

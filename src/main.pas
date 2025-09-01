@@ -7,7 +7,7 @@ interface
 uses
   Classes, Sysutils, Fileutil, Forms, Controls, Graphics, Dialogs, ExtCtrls, LazFileUtils,
   Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType, IniFiles, unitSettingsDialog,
-  unitCoverWorker, unitStorageXML, unitMetadata, LazUTF8;
+  unitCoverWorker, unitStorageXML, unitMetadata, unitAppEvents, LazUTF8;
 
 
 type
@@ -52,6 +52,7 @@ type
     procedure LayoutTimerTick(Sender: TObject);
     procedure ApplyFilterAndLayout;
     function AppConfigPath: String;
+    procedure SaveBooksNow;
   public
     { public declarations }
   end;
@@ -91,6 +92,16 @@ end;
 function TForm1.AppConfigPath: String;
 begin
   Result := IncludeTrailingPathDelimiter(GetAppConfigDirUTF8(False)) + 'config.ini';
+end;
+
+procedure TForm1.SaveBooksNow;
+begin
+  try
+    if Assigned(bookList) then
+      SaveBooksXML(dataXmlPath, bookList);
+  except
+    // ignore save errors during runtime autosave
+  end;
 end;
 
 procedure TForm1.PanelBackgroundClick({%H-}Sender: TObject);
@@ -548,6 +559,9 @@ begin
   dataXmlPath := IncludeTrailingPathDelimiter(dataDir) + 'books.xml';
 
  bookList:=TBookCollection.Create;
+
+  // Register autosave callback for book edits
+  OnBooksChanged := @SaveBooksNow;
 
   // speed up startup: we skipped synchronous PDF generation during load
   SetPdfCoverGenerationEnabled(False);
