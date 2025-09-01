@@ -386,6 +386,7 @@ var
     end;
 
     book:=TBook.Create(PanelBackground);
+    CoverWorkerRegisterBook(book);
     book.FilePath:= dest;
     if optExtractMeta then
     begin
@@ -557,7 +558,7 @@ begin
     SetPdfCoverGenerationEnabled(autoPdfCover); // re-enable per settings
   end;
 
- for i:=0 to bookList.Count-1 do
+for i:=0 to bookList.Count-1 do
 begin
   with bookList.Books[i] do
   begin
@@ -566,6 +567,7 @@ begin
     Cover.Parent:=PanelBackground;
     EnsureScaledToCoverSize;
   end;
+  CoverWorkerRegisterBook(bookList.Books[i]);
 end;
 
  RearrangeBooksOnScreen();
@@ -604,6 +606,7 @@ begin
          b := bookList.Books[i];
          // Ensure the background worker won't touch this book anymore
          CoverWorkerRemoveBook(b);
+         CoverWorkerUnregisterBook(b);
          if Assigned(b.Cover) then b.Cover.Free;
          bookList.Remove(b);
          b.Free;

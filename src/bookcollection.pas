@@ -51,6 +51,8 @@ begin
     // Explicitly free the cover control to avoid orphaned images
     if Assigned(book) and Assigned(book.Cover) then
       book.Cover.Free;
+    CoverWorkerRemoveBook(book);
+    CoverWorkerUnregisterBook(book);
     book.Free;               // free the book itself
   end;
   mList.Clear;
@@ -128,6 +130,8 @@ begin
     book := TBook(mList.Items[i]);
     if Assigned(book) and Assigned(book.Cover) then
       book.Cover.Free;
+    CoverWorkerRemoveBook(book);
+    CoverWorkerUnregisterBook(book);
     FreeAndNil(book);
   end;
 

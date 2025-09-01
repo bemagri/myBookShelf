@@ -26,6 +26,10 @@ procedure CoverWorkerStop;
 { Remove a specific book from the pending queue (e.g., before deleting it) }
 procedure CoverWorkerRemoveBook(B: TBook);
 
+{ Register/unregister books so the worker can avoid using freed objects }
+procedure CoverWorkerRegisterBook(B: TBook);
+procedure CoverWorkerUnregisterBook(B: TBook);
+
 implementation
 
 type
@@ -45,6 +49,7 @@ type
 var
   GPdfQueue: TThreadList; // holds TBook references
   GWorker  : TCoverWorker;
+  GAliveBooks: TThreadList; // tracks currently alive books
 
 {--- helpers ------------------------------------------------------------------}
 
@@ -152,6 +157,8 @@ procedure EnsureQueue;
 begin
   if GPdfQueue = nil then
     GPdfQueue := TThreadList.Create;
+  if GAliveBooks = nil then
+    GAliveBooks := TThreadList.Create;
 end;
 
 {--- public API ----------------------------------------------------------------}
@@ -193,6 +200,45 @@ begin
     end;
   finally
     GPdfQueue.UnlockList;
+  end;
+end;
+
+procedure CoverWorkerRegisterBook(B: TBook);
+var l: TList;
+begin
+  if B = nil then Exit;
+  EnsureQueue;
+  l := GAliveBooks.LockList;
+  try
+    if l.IndexOf(B) < 0 then l.Add(B);
+  finally
+    GAliveBooks.UnlockList;
+  end;
+end;
+
+procedure CoverWorkerUnregisterBook(B: TBook);
+var l: TList; idx: Integer;
+begin
+  if (B = nil) or (GAliveBooks = nil) then Exit;
+  l := GAliveBooks.LockList;
+  try
+    idx := l.IndexOf(B);
+    if idx >= 0 then l.Delete(idx);
+  finally
+    GAliveBooks.UnlockList;
+  end;
+end;
+
+function BookIsAlive(B: TBook): Boolean;
+var l: TList;
+begin
+  Result := False;
+  if (B = nil) or (GAliveBooks = nil) then Exit;
+  l := GAliveBooks.LockList;
+  try
+    Result := l.IndexOf(B) >= 0;
+  finally
+    GAliveBooks.UnlockList;
   end;
 end;
 procedure CoverWorkerEnqueueBookIfMissing(B: TBook);
@@ -322,13 +368,14 @@ begin
     end;
 
     // Skip if it no longer needs a cover
-    if not (IsPdf(B.FilePath) and HasGenericCover(B)) then
+    if (not BookIsAlive(B)) or (not (IsPdf(B.FilePath) and HasGenericCover(B))) then
     begin
       Sleep(5);
       Continue;
     end;
 
     // Read current cover size in main thread to avoid cross-thread UI access
+    if not BookIsAlive(B) then Continue;
     FSizeBook := B; FSizeW := 0; FSizeH := 0;
     Synchronize(@ReadCoverSize);
     W := FSizeW; H := FSizeH;
@@ -337,7 +384,7 @@ begin
     LogInfoFmt('Generating cover for: %s', [B.FilePath]);
     Img := GeneratePdfCover(B.FilePath, W, H);
 
-    if (Img <> '') and FileExists(Img) then
+    if BookIsAlive(B) and (Img <> '') and FileExists(Img) then
     begin
       // Pass data to main thread via fields + Synchronize
       FApplyBook := B;
