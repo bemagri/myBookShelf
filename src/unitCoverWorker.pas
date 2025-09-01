@@ -34,7 +34,10 @@ type
   private
     FApplyBook: TBook;
     FApplyImg : String;
+    FSizeBook : TBook;
+    FSizeW, FSizeH: Integer;
     procedure DoApplyCover; // runs in main thread
+    procedure ReadCoverSize; // runs in main thread
   protected
     procedure Execute; override;
   end;
@@ -274,11 +277,26 @@ begin
   end;
 end;
 
+procedure TCoverWorker.ReadCoverSize;
+begin
+  if Assigned(FSizeBook) and Assigned(FSizeBook.Cover) then
+  begin
+    FSizeW := FSizeBook.Cover.Width;
+    FSizeH := FSizeBook.Cover.Height;
+  end
+  else
+  begin
+    FSizeW := 0;
+    FSizeH := 0;
+  end;
+end;
+
 procedure TCoverWorker.Execute;
 var
   l: TList;
   B: TBook;
   Img: String;
+  W, H: Integer;
 begin
   // drain the queue
   LogInfo('Worker loop started');
@@ -310,9 +328,14 @@ begin
       Continue;
     end;
 
+    // Read current cover size in main thread to avoid cross-thread UI access
+    FSizeBook := B; FSizeW := 0; FSizeH := 0;
+    Synchronize(@ReadCoverSize);
+    W := FSizeW; H := FSizeH;
+
     // Generate cover (background thread)
     LogInfoFmt('Generating cover for: %s', [B.FilePath]);
-    Img := GeneratePdfCover(B.FilePath, B.Cover.Width, B.Cover.Height);
+    Img := GeneratePdfCover(B.FilePath, W, H);
 
     if (Img <> '') and FileExists(Img) then
     begin

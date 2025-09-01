@@ -99,7 +99,7 @@ object BookEditDialog: TBookEditDialog
       Stretch = False
     end
   end
-  object ButtonChangeCover: TButton
+  object ButtonChangeCover: TBitBtn
     Left = 24
     Height = 28
     Top = 270
