@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, Sysutils, Fileutil, Forms, Controls, Graphics, Dialogs, ExtCtrls, LazFileUtils,
-  Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType, IniFiles, unitSettingsDialog,
-  unitCoverWorker, unitStorageXML, unitMetadata, LazUTF8;
+  Book, BookCollection, LCLIntf, LResources, StdCtrls, Menus, LCLType, IniFiles, unitSettingsDialog,
+  unitCoverWorker, unitStorageXML, unitMetadata, UnitBookDialog, LazUTF8;
 
 
 type
@@ -16,6 +16,8 @@ type
   TForm1 = class(TForm)
     EditSearch: Tedit;
     ComboSort: TComboBox;
+    PopupBook: TPopupMenu;
+    MenuEditBook: TMenuItem;
     ButtonSettings: Timage;
     ImageToolBar: Timage;
     ButtonAdd: Timage;
@@ -46,6 +48,7 @@ type
     function GetBookIndexAtPoint(X,Y:Integer):Integer;
     procedure UnselectAll;
     function GetCoverIndex(cover:TImage):Integer;
+    procedure PopupEditBookClick({%H-}Sender: TObject);
   private
     mAdd,mAddHover,mGear,mGearHover:TPicture;
     LayoutTimer: TTimer;
@@ -308,6 +311,32 @@ begin
  result:=-1;
 end;
 
+procedure TForm1.PopupEditBookClick({%H-}Sender: TObject);
+var
+  img: TImage;
+  idx: Integer;
+  dlg: TBookEditDialog;
+begin
+  if (PopupBook = nil) or (PopupBook.PopupComponent = nil) then Exit;
+  if not (PopupBook.PopupComponent is TImage) then Exit;
+  img := TImage(PopupBook.PopupComponent);
+  idx := GetCoverIndex(img);
+  if idx < 0 then Exit;
+
+  dlg := TBookEditDialog.Create(Self);
+  try
+    dlg.LoadBook(bookList.Books[idx]);
+    if dlg.ShowModal = mrOK then
+    begin
+      // reflect changes visually
+      bookList.Books[idx].EnsureScaledToCoverSize;
+      ApplyFilterAndLayout;
+    end;
+  finally
+    dlg.Free;
+  end;
+end;
+
 
 procedure TForm1.FormClose({%H-}Sender: TObject; var CloseAction: TCloseAction);
 begin
@@ -398,6 +427,7 @@ var
     book.Cover.Width:=coverWidth;
     book.Cover.Height:=coverHeight;
     book.Cover.Parent:=PanelBackground;
+    book.Cover.PopupMenu := PopupBook;
     // Ensure the pre-scaled image matches the final cover size
     book.EnsureScaledToCoverSize;
     CoverWorkerEnqueueBookIfMissing(book);
@@ -561,6 +591,7 @@ begin
     Cover.Width:=coverWidth;
     Cover.Height:=coverHeight;
     Cover.Parent:=PanelBackground;
+    Cover.PopupMenu := PopupBook;
     EnsureScaledToCoverSize;
   end;
 end;
