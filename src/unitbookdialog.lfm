@@ -7,7 +7,7 @@ object BookEditDialog: TBookEditDialog
   BorderStyle = bsDialog
   Caption = 'Edit Book Info'
   ClientHeight = 347
-  ClientWidth = 856
+  ClientWidth = 806
   FormStyle = fsStayOnTop
   OnCreate = FormCreate
   LCLVersion = '1.6.4.0'
@@ -45,21 +45,23 @@ object BookEditDialog: TBookEditDialog
     Text = 'File Path'
   end
   object ButtonSave: TBitBtn
-    Left = 298
+    Left = 636
     Height = 30
     Top = 296
     Width = 75
     Caption = '&Save'
     OnClick = ButtonSaveClick
+    Anchors = [akRight, akBottom]
     TabOrder = 4
   end
   object ButtonCancel: TBitBtn
-    Left = 434
+    Left = 716
     Height = 30
     Top = 296
     Width = 75
     Caption = '&Cancel'
     OnClick = ButtonCancelClick
+    Anchors = [akRight, akBottom]
     TabOrder = 5
   end
   object Panel1: TPanel
@@ -78,8 +80,20 @@ object BookEditDialog: TBookEditDialog
       Top = 0
       Width = 182
       OnClick = ImageBookCoverClick
+      Cursor = crHandPoint
+      ShowHint = True
+      Hint = 'Click to change cover'
       Stretch = True
     end
+  end
+  object ButtonChangeCover: TButton
+    Left = 24
+    Height = 28
+    Top = 264
+    Width = 182
+    Caption = 'Change Cover...'
+    OnClick = ImageBookCoverClick
+    TabOrder = 8
   end
   object EditImagePath: TEdit
     Left = 329

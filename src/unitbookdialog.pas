@@ -65,9 +65,16 @@ begin
   ButtonLookup := TButton.Create(Self);
   ButtonLookup.Parent := Self;
   ButtonLookup.Caption := 'Lookup';
-  ButtonLookup.Top := EditISBN.Top - 2;
+  ButtonLookup.Top := EditISBN.Top;
   ButtonLookup.Left := EditISBN.Left + EditISBN.Width + 8;
+  ButtonLookup.Height := EditISBN.Height;
+  ButtonLookup.Anchors := [akTop, akRight];
   ButtonLookup.OnClick := @ButtonLookupClick;
+
+  // Make it obvious the cover can be changed
+  ImageBookCover.Cursor := crHandPoint;
+  ImageBookCover.ShowHint := True;
+  ImageBookCover.Hint := 'Click to change cover';
 End;
 
 procedure TBookEditDialog.ButtonLookupClick(Sender: TObject);
@@ -273,4 +280,3 @@ begin
 end;
 
 end.
-
