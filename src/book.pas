@@ -219,11 +219,27 @@ begin
         end;
         mImagePath := AValue;
         mScaledW := W; mScaledH := H;
-        LogInfoFmt('SetImage: applied image "%s" target=%dx%d', [mImagePath, W, H]);
+        LogInfoFmt('SetImage: applied image "%s" target=%dx%d (pre-scaled)', [mImagePath, W, H]);
         Exit;
       except
-        // fall through to generic on any failure
-        on E: Exception do LogErrorFmt('SetImage: failed to load "%s": %s', [AValue, E.Message]);
+        // If pre-scale/assignment failed, fall back to direct load + Stretch
+        on E: Exception do
+        begin
+          LogErrorFmt('SetImage: failed to pre-scale "%s": %s', [AValue, E.Message]);
+          try
+            mCover.Stretch := True;
+            mCover.Center  := True;
+            mCover.AutoSize:= False;
+            mCover.Picture.LoadFromFile(AValue);
+            mImagePath := AValue;
+            // Mark as scaled to current control to avoid immediate rescale loop
+            mScaledW := mCover.Width; mScaledH := mCover.Height;
+            LogInfoFmt('SetImage: applied image "%s" via direct load (stretch)', [mImagePath]);
+            Exit;
+          except
+            on E2: Exception do LogErrorFmt('SetImage: direct load failed for "%s": %s', [AValue, E2.Message]);
+          end;
+        end;
       end;
     finally
       Canvas.Free;

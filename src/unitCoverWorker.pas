@@ -288,8 +288,15 @@ begin
   try
     if Assigned(FApplyBook) and (FApplyImg <> '') and FileExists(FApplyImg) then
     begin
+      LogDebugFmt('DoApplyCover: applying to book fp="%s" img="%s"', [FApplyBook.FilePath, FApplyImg]);
       FApplyBook.ImagePath := FApplyImg;  // triggers SetImage + pre-scale
       FApplyBook.EnsureScaledToCoverSize; // in case layout changed
+      try
+        LogDebugFmt('DoApplyCover: after apply hasGraphic=%s coverSize=%dx%d',
+          [BoolToStr(Assigned(FApplyBook.Cover) and Assigned(FApplyBook.Cover.Picture) and
+                     Assigned(FApplyBook.Cover.Picture.Graphic) and (not FApplyBook.Cover.Picture.Graphic.Empty), True),
+           FApplyBook.Cover.Width, FApplyBook.Cover.Height]);
+      except end;
       // Persist cover change immediately
       NotifyBooksChanged;
     end;
