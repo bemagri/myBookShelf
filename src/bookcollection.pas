@@ -70,6 +70,11 @@ End;
 
 procedure TBookCollection.Remove(Book: TBook);
 begin
+  if book <> nil then
+  begin
+    CoverWorkerRemoveBook(book);
+    CoverWorkerUnregisterBook(book);
+  end;
   mList.Remove(book);
 end;
 

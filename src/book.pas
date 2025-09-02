@@ -53,7 +53,7 @@ procedure SetPdfCoverGenerationEnabled(AEnabled: Boolean);
 
 implementation
 
-uses UnitBookDialog, Forms, unitAppEvents;
+uses UnitBookDialog, Forms, unitAppEvents, unitLog;
 
 procedure TBook.OpenEditDialogAsync({%H-}Data: PtrInt);
 var
@@ -91,6 +91,15 @@ end;
 {------------------------------------------------------------------------------}
 procedure TBook.BookCoverPaint(Sender: TObject);
 begin
+  // Trace paints to diagnose missing covers
+  try
+    LogDebugFmt('CoverPaint: visible=%s size=%dx%d hasGraphic=%s fp="%s" img="%s"',
+      [BoolToStr(mCover.Visible, True), mCover.Width, mCover.Height,
+       BoolToStr(Assigned(mCover.Picture) and Assigned(mCover.Picture.Graphic) and (not mCover.Picture.Graphic.Empty), True),
+       mFilePath, mImagePath]);
+  except
+  end;
+
   if mIsSelected then
   begin
     mCover.Canvas.Brush.Style := bsClear;
@@ -156,7 +165,6 @@ var
   SrcImg: TLazIntfImage;
   Img : TLazIntfImage;
   Canvas: TLazCanvas;
-  Png : TPortableNetworkGraphic;
   dstW, dstH, offX, offY: Integer;
   scale: Double;
   W, H: Integer;
@@ -169,8 +177,8 @@ begin
   W := mCover.Width;  H := mCover.Height;
   if (W <= 0) or (H <= 0) then
   begin
-    // fallback: honor the common 130x250 default
-    W := 130; H := 250;
+    // fallback: match app default 130x200
+    W := 130; H := 200;
     mCover.Width := W; mCover.Height := H;
   end;
 
@@ -179,7 +187,6 @@ begin
     SrcImg := TLazIntfImage.Create(0, 0);
     Img := TLazIntfImage.Create(W, H);
     Canvas := TLazCanvas.Create(Img);
-    Png := TPortableNetworkGraphic.Create;
     try
       try
         SrcImg.LoadFromFile(AValue);
@@ -194,24 +201,31 @@ begin
           dstH := Round(SrcImg.Height * scale);
           offX := (W - dstW) div 2;
           offY := (H - dstH) div 2;
+          // BUGFIX: draw source image (not the destination buffer)
           Canvas.StretchDraw(offX, offY, dstW, dstH, SrcImg);
+          LogDebugFmt('SetImage: src=%dx%d scale=%.3f dst=%dx%d off=%dx%d',
+            [SrcImg.Width, SrcImg.Height, scale, dstW, dstH, offX, offY]);
         end;
 
         // No runtime scaling anymore; we drew at target size
         mCover.Stretch := False;
         mCover.Center  := False;
         mCover.AutoSize:= False;
-
-        Png.Assign(Img);
-        mCover.Picture.Assign(Png);
+        // Assign via Bitmap to avoid PNG handle creation issues
+        if Assigned(mCover.Picture) then
+        begin
+          mCover.Picture.Bitmap.SetSize(W, H);
+          mCover.Picture.Bitmap.LoadFromIntfImage(Img);
+        end;
         mImagePath := AValue;
         mScaledW := W; mScaledH := H;
+        LogInfoFmt('SetImage: applied image "%s" target=%dx%d', [mImagePath, W, H]);
         Exit;
       except
         // fall through to generic on any failure
+        on E: Exception do LogErrorFmt('SetImage: failed to load "%s": %s', [AValue, E.Message]);
       end;
     finally
-      Png.Free;
       Canvas.Free;
       Img.Free;
       SrcImg.Free;
@@ -221,6 +235,7 @@ begin
   // Generic fallback
   mCover.Stretch := True;
   mCover.Picture.LoadFromLazarusResource('generic_cover');
+  LogWarn('SetImage: using generic cover');
 end;
 
 {------------------------------------------------------------------------------}
@@ -229,7 +244,14 @@ end;
 procedure TBook.EnsureScaledToCoverSize;
 begin
   if (mImagePath <> '') and ((mScaledW <> mCover.Width) or (mScaledH <> mCover.Height)) then
+  begin
+    LogInfoFmt('EnsureScaledToCoverSize: rescaling from %dx%d to %dx%d for "%s"',
+      [mScaledW, mScaledH, mCover.Width, mCover.Height, mImagePath]);
     SetImage(mImagePath);
+  end
+  else
+    LogDebugFmt('EnsureScaledToCoverSize: no-op (scaled=%dx%d, cover=%dx%d, hasImage=%s)',
+      [mScaledW, mScaledH, mCover.Width, mCover.Height, BoolToStr(mImagePath<>'', True)]);
 end;
 
 {------------------------------------------------------------------------------}
@@ -239,6 +261,7 @@ procedure TBook.SetFile(AValue: String);
 begin
   if mFilePath = AValue then Exit;
   mFilePath := AValue;
+  LogInfoFmt('SetFile: "%s"', [AValue]);
 
   // If a cover image was already chosen (manually or previously set), don't override it
   if Trim(mImagePath) <> '' then Exit;

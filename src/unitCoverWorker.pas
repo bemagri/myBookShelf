@@ -387,5 +387,10 @@ finalization
     GPdfQueue.Free;
     GPdfQueue := nil;
   end;
+  if GAliveBooks <> nil then
+  begin
+    GAliveBooks.Free;
+    GAliveBooks := nil;
+  end;
 
 end.

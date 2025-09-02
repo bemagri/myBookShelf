@@ -7,7 +7,7 @@ interface
 uses
   Classes, Sysutils, Fileutil, Forms, Controls, Graphics, Dialogs, ExtCtrls, LazFileUtils,
   Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType, IniFiles, unitSettingsDialog,
-  unitCoverWorker, unitStorageXML, unitMetadata, unitAppEvents, LazUTF8;
+  unitCoverWorker, unitStorageXML, unitMetadata, unitAppEvents, unitLog, LazUTF8;
 
 
 type
@@ -53,6 +53,8 @@ type
     procedure ApplyFilterAndLayout;
     function AppConfigPath: String;
     procedure SaveBooksNow;
+    procedure ScheduleSaveBooks; // debounced autosave
+    procedure SaveTimerTick(Sender: TObject);
   public
     { public declarations }
   end;
@@ -67,6 +69,7 @@ var
   coverWidth, coverHeight: Integer;
   optCopyBooks, optRenameBooks, optExtractMeta: Boolean;
   isClosing: Boolean = False;
+  SaveTimer: TTimer;
 
 
 
@@ -104,6 +107,26 @@ begin
   end;
 end;
 
+procedure TForm1.ScheduleSaveBooks;
+begin
+  if isClosing then Exit;
+  if SaveTimer = nil then
+  begin
+    SaveTimer := TTimer.Create(Self);
+    SaveTimer.Enabled := False;
+    SaveTimer.Interval := 400; // debounce writes
+    SaveTimer.OnTimer := @SaveTimerTick;
+  end;
+  SaveTimer.Enabled := False;
+  SaveTimer.Enabled := True;
+end;
+
+procedure TForm1.SaveTimerTick(Sender: TObject);
+begin
+  if SaveTimer <> nil then SaveTimer.Enabled := False;
+  SaveBooksNow;
+end;
+
 procedure TForm1.PanelBackgroundClick({%H-}Sender: TObject);
 begin
  ActiveControl:=PanelBackground;
@@ -135,6 +158,10 @@ procedure TForm1.PanelBackgroundPaint({%H-}Sender: TObject);
 var w,h:Integer;
     x,y:Integer;
 begin
+  // Trace tile painting (not cover drawing)
+  try
+    LogDebugFmt('PanelBackgroundPaint: canvas=%dx%d', [PanelBackground.Canvas.Width, PanelBackground.Canvas.Height]);
+  except end;
   // Safety: if no tile or invalid size, skip custom painting
   if (backgroundTile = nil) or (backgroundTile.Width <= 0) or (backgroundTile.Height <= 0) then
     Exit;
@@ -186,6 +213,7 @@ var
       end;
     end;
     countVisible := Length(visibleCovers);
+    LogInfoFmt('Layout: %d/%d covers visible', [countVisible, bookList.Count]);
   end;
 
   // Can we fit N items with at least minGap spacing including left+right margins?
@@ -251,6 +279,10 @@ begin
         cover := visibleCovers[k];
         cover.Left := Round(x);
         cover.Top  := curY;
+        try
+          LogDebugFmt('Layout place: idx=%d pos=(%d,%d) size=%dx%d visible=%s',
+            [k, cover.Left, cover.Top, cover.Width, cover.Height, BoolToStr(cover.Visible, True)]);
+        except end;
         x := x + coverWidth + gap;
       end;
 
@@ -564,8 +596,8 @@ begin
 
  bookList:=TBookCollection.Create;
 
-  // Register autosave callback for book edits
-  OnBooksChanged := @SaveBooksNow;
+  // Register autosave callback for book edits (debounced)
+  OnBooksChanged := @ScheduleSaveBooks;
 
   // speed up startup: we skipped synchronous PDF generation during load
   SetPdfCoverGenerationEnabled(False);
