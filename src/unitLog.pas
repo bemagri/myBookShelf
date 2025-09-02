@@ -4,6 +4,11 @@ unit unitLog;
 
 interface
 
+type
+  TLogLevel = (llDebug, llInfo, llWarn, llError);
+
+procedure SetLogLevel(Level: TLogLevel);
+function  GetLogLevel: TLogLevel;
 procedure LogDebug(const Msg: string);
 procedure LogInfo(const Msg: string);
 procedure LogWarn(const Msg: string);
@@ -15,11 +20,12 @@ procedure LogErrorFmt(const Fmt: string; const Args: array of const);
 
 implementation
 
-uses
-  SysUtils, LazFileUtils, SyncObjs;
+{$IFDEF MB_LOG}
+uses SysUtils, LazFileUtils, SyncObjs;
 
 var
   LogLock: TRTLCriticalSection;
+  gMinLevel: TLogLevel = llWarn; // default: only warn+error
 
 function LogFilePath: string;
 var dir: string;
@@ -56,21 +62,41 @@ begin
   end;
 end;
 
-procedure LogDebug(const Msg: string); begin WriteLine('DEBUG', Msg); end;
-procedure LogInfo(const Msg: string);  begin WriteLine('INFO',  Msg); end;
-procedure LogWarn(const Msg: string);  begin WriteLine('WARN',  Msg); end;
-procedure LogError(const Msg: string); begin WriteLine('ERROR', Msg); end;
-
-procedure LogDebugFmt(const Fmt: string; const Args: array of const); begin LogDebug(Format(Fmt, Args)); end;
-procedure LogInfoFmt(const Fmt: string; const Args: array of const);  begin LogInfo(Format(Fmt, Args)); end;
-procedure LogWarnFmt(const Fmt: string; const Args: array of const);  begin LogWarn(Format(Fmt, Args)); end;
-procedure LogErrorFmt(const Fmt: string; const Args: array of const); begin LogError(Format(Fmt, Args)); end;
+procedure SetLogLevel(Level: TLogLevel); begin gMinLevel := Level; end;
+function  GetLogLevel: TLogLevel; begin Result := gMinLevel; end;
+procedure LogDebug(const Msg: string); begin if gMinLevel <= llDebug then WriteLine('DEBUG', Msg); end;
+procedure LogInfo(const Msg: string);  begin if gMinLevel <= llInfo  then WriteLine('INFO',  Msg); end;
+procedure LogWarn(const Msg: string);  begin if gMinLevel <= llWarn  then WriteLine('WARN',  Msg); end;
+procedure LogError(const Msg: string); begin if gMinLevel <= llError then WriteLine('ERROR', Msg); end;
+procedure LogDebugFmt(const Fmt: string; const Args: array of const); begin if gMinLevel <= llDebug then LogDebug(Format(Fmt, Args)); end;
+procedure LogInfoFmt(const Fmt: string; const Args: array of const);  begin if gMinLevel <= llInfo  then LogInfo(Format(Fmt, Args)); end;
+procedure LogWarnFmt(const Fmt: string; const Args: array of const);  begin if gMinLevel <= llWarn  then LogWarn(Format(Fmt, Args)); end;
+procedure LogErrorFmt(const Fmt: string; const Args: array of const); begin if gMinLevel <= llError then LogError(Format(Fmt, Args)); end;
 
 initialization
   InitCriticalSection(LogLock);
-
+  try
+    case LowerCase(GetEnvironmentVariable('MYBOOKSHELF_LOGLEVEL')) of
+      'debug': gMinLevel := llDebug;
+      'info':  gMinLevel := llInfo;
+      'warn', 'warning': gMinLevel := llWarn;
+      'error': gMinLevel := llError;
+    end;
+  except end;
 finalization
   DoneCriticalSection(LogLock);
+{$ELSE}
+// Logging disabled at compile time; provide no-op stubs
+procedure SetLogLevel(Level: TLogLevel); begin end;
+function  GetLogLevel: TLogLevel; begin Result := llError; end;
+procedure LogDebug(const Msg: string); begin end;
+procedure LogInfo(const Msg: string);  begin end;
+procedure LogWarn(const Msg: string);  begin end;
+procedure LogError(const Msg: string); begin end;
+procedure LogDebugFmt(const Fmt: string; const Args: array of const); begin end;
+procedure LogInfoFmt(const Fmt: string; const Args: array of const);  begin end;
+procedure LogWarnFmt(const Fmt: string; const Args: array of const);  begin end;
+procedure LogErrorFmt(const Fmt: string; const Args: array of const); begin end;
+{$ENDIF}
 
 end.
-

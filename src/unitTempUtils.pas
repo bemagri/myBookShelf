@@ -54,6 +54,7 @@ procedure CleanupOldTempCoverFiles(MaxAgeHours: Integer);
 var
   sr: TSearchRec;
   mask, tmpDir, path: string;
+  fileAge: LongInt;
   dt: TDateTime;
   ageHours: Double;
 begin
@@ -65,8 +66,10 @@ begin
     repeat
       path := IncludeTrailingPathDelimiter(tmpDir) + sr.Name;
       try
-        if FileAgeUTF8(path, dt) then
+        fileAge := FileAgeUTF8(path);
+        if fileAge >= 0 then
         begin
+          dt := FileDateToDateTime(fileAge);
           ageHours := HoursBetween(Now, dt);
           if ageHours >= MaxAgeHours then
             DeleteFileUTF8(path);
