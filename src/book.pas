@@ -53,7 +53,7 @@ procedure SetPdfCoverGenerationEnabled(AEnabled: Boolean);
 
 implementation
 
-uses UnitBookDialog, Forms, unitAppEvents, unitLog;
+uses UnitBookDialog, Forms, unitAppEvents, unitLog, LazUTF8, unitTempUtils;
 
 procedure TBook.OpenEditDialogAsync({%H-}Data: PtrInt);
 var
@@ -168,6 +168,55 @@ var
   dstW, dstH, offX, offY: Integer;
   scale: Double;
   W, H: Integer;
+  convOut: String;
+
+  function TryConvertImageToPng(const InFile: String; out OutFile: String): Boolean;
+  var
+    proc: TProcess;
+    exe: String;
+    base, nameOnly, tmpDir: String;
+    i: Integer;
+  begin
+    Result := False;
+    OutFile := '';
+    // Only try to convert if not already a PNG and not already a converted temp file
+    if UTF8LowerCase(ExtractFileExt(InFile)) = '.png' then Exit(False);
+    if Pos('mybookshelf_cover_', UTF8LowerCase(InFile)) > 0 then Exit(False);
+
+    // Build a safe temp output path to avoid extremely long filenames
+    tmpDir := GetTempDir(False);
+    nameOnly := ExtractFileName(ChangeFileExt(InFile, ''));
+    // sanitize and truncate
+    for i := 1 to Length(nameOnly) do
+      if not (nameOnly[i] in ['A'..'Z','a'..'z','0'..'9','_','-']) then nameOnly[i] := '_';
+    if Length(nameOnly) > 48 then
+      SetLength(nameOnly, 48);
+    OutFile := IncludeTrailingPathDelimiter(tmpDir) + 'mybookshelf_cover_' + nameOnly + '.png';
+    // prefer ImageMagick v7 'magick', then v6 'convert'
+    exe := FindDefaultExecutablePath('magick');
+    if exe = '' then exe := FindDefaultExecutablePath('convert');
+    if exe = '' then
+    begin
+      LogWarn('TryConvertImageToPng: no ImageMagick found (magick/convert)');
+      Exit(False);
+    end;
+    proc := TProcess.Create(nil);
+    try
+      proc.Executable := exe;
+      // For 'magick', first arg is input; for 'convert' similar syntax works
+      // add -auto-orient to respect EXIF rotation
+      proc.Parameters.Add(InFile);
+      proc.Parameters.Add('-auto-orient');
+      proc.Parameters.Add(OutFile);
+      proc.Options := [poWaitOnExit];
+      proc.ShowWindow := swoHide;
+      LogInfoFmt('Converting image to PNG: %s -> %s via %s', [InFile, OutFile, exe]);
+      proc.Execute;
+      Result := FileExists(OutFile) and (proc.ExitStatus = 0);
+    finally
+      proc.Free;
+    end;
+  end;
 begin
   // Default state
   mImagePath := '';
@@ -222,22 +271,33 @@ begin
         LogInfoFmt('SetImage: applied image "%s" target=%dx%d (pre-scaled)', [mImagePath, W, H]);
         Exit;
       except
-        // If pre-scale/assignment failed, fall back to direct load + Stretch
+        // If pre-scale/assignment failed, try converting to PNG, else fall back to direct load + Stretch
         on E: Exception do
         begin
           LogErrorFmt('SetImage: failed to pre-scale "%s": %s', [AValue, E.Message]);
-          try
-            mCover.Stretch := True;
-            mCover.Center  := True;
-            mCover.AutoSize:= False;
-            mCover.Picture.LoadFromFile(AValue);
-            mImagePath := AValue;
-            // Mark as scaled to current control to avoid immediate rescale loop
-            mScaledW := mCover.Width; mScaledH := mCover.Height;
-            LogInfoFmt('SetImage: applied image "%s" via direct load (stretch)', [mImagePath]);
+          // Some files are mislabeled or unsupported; attempt to transcode to PNG if ImageMagick is available
+          if TryConvertImageToPng(AValue, convOut) and FileExists(convOut) then
+          begin
+            LogInfoFmt('SetImage: retry with converted PNG "%s"', [convOut]);
+            RegisterTempCoverFile(convOut);
+            SetImage(convOut);
             Exit;
-          except
-            on E2: Exception do LogErrorFmt('SetImage: direct load failed for "%s": %s', [AValue, E2.Message]);
+          end
+          else
+          begin
+            try
+              mCover.Stretch := True;
+              mCover.Center  := True;
+              mCover.AutoSize:= False;
+              mCover.Picture.LoadFromFile(AValue);
+              mImagePath := AValue;
+              // Mark as scaled to current control to avoid immediate rescale loop
+              mScaledW := mCover.Width; mScaledH := mCover.Height;
+              LogInfoFmt('SetImage: applied image "%s" via direct load (stretch)', [mImagePath]);
+              Exit;
+            except
+              on E2: Exception do LogErrorFmt('SetImage: direct load failed for "%s": %s', [AValue, E2.Message]);
+            end;
           end;
         end;
       end;

@@ -7,7 +7,7 @@ interface
 uses
   Classes, Sysutils, Fileutil, Forms, Controls, Graphics, Dialogs, ExtCtrls, LazFileUtils,
   Book, BookCollection, LCLIntf, LResources, StdCtrls, LCLType, IniFiles, unitSettingsDialog,
-  unitCoverWorker, unitStorageXML, unitMetadata, unitAppEvents, unitLog, LazUTF8;
+  unitCoverWorker, unitStorageXML, unitMetadata, unitAppEvents, unitLog, unitTempUtils, LazUTF8;
 
 
 type
@@ -361,6 +361,10 @@ begin
   if Assigned(LayoutTimer) then LayoutTimer.Enabled := False;
   // Ensure background worker thread is stopped before destroying books/controls
   CoverWorkerStop;
+  // Cleanup any session temp covers
+  try
+    CleanupSessionTempCovers;
+  except end;
   try
     if Assigned(bookList) then
       SaveBooksXML(dataXmlPath, bookList);
@@ -598,6 +602,10 @@ begin
 
   // Register autosave callback for book edits (debounced)
   OnBooksChanged := @ScheduleSaveBooks;
+  // Cleanup stale temporary cover files from previous runs (older than 24h)
+  try
+    CleanupOldTempCoverFiles(24);
+  except end;
 
   // speed up startup: we skipped synchronous PDF generation during load
   SetPdfCoverGenerationEnabled(False);
